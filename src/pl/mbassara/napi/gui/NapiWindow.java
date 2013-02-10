@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import pl.mbassara.napi.utils.NapiResult;
 import pl.mbassara.napi.utils.Napiprojekt;
@@ -33,6 +34,7 @@ public class NapiWindow extends JFrame {
 	private final JPanel fileSelectionPanel = new JPanel(new FlowLayout(
 			FlowLayout.CENTER));
 	private final JButton startButton = new JButton("Start");
+	private final MovieInfoPanel[] infoPanel = new MovieInfoPanel[1];
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 
@@ -41,14 +43,14 @@ public class NapiWindow extends JFrame {
 	}
 
 	private void initialize() {
-		setSize(new Dimension(600, 500));
+		setSize(new Dimension(600, 550));
 		setResizable(false);
 		setLayout(new BorderLayout());
-		// try {
-		// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		add(mainPanel, BorderLayout.CENTER);
 
@@ -86,8 +88,13 @@ public class NapiWindow extends JFrame {
 					napiResult[0] = Napiprojekt.request(new File(
 							filePathTextField.getText()), Mode.SUBS_COVER);
 
-					JOptionPane.showMessageDialog(thisReference,
-							napiResult[0].getTitle());
+					if (!napiResult[0].isCoverStatus())
+						return;
+
+					infoPanel[0] = new MovieInfoPanel(napiResult[0]);
+					thisReference.setSize(900, 550);
+					thisReference.add(infoPanel[0], BorderLayout.EAST);
+
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(thisReference,
