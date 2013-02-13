@@ -73,6 +73,7 @@ public class NapiWindow extends JFrame {
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 	private final MediaInfo mediaInfo = new MediaInfo();
+	private final File[] lastUsedDirectory = new File[1];
 
 	public NapiWindow() {
 		initialize();
@@ -107,13 +108,16 @@ public class NapiWindow extends JFrame {
 		openFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
+				JFileChooser chooser = new JFileChooser(lastUsedDirectory[0]);
 				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 				chooser.setApproveButtonText("Select");
 				int result = chooser.showOpenDialog(thisReference);
 
 				if (result != JFileChooser.APPROVE_OPTION)
 					return;
+
+				lastUsedDirectory[0] = chooser.getSelectedFile()
+						.getParentFile();
 
 				try {
 					mediaInfo.open(chooser.getSelectedFile());
@@ -226,94 +230,97 @@ public class NapiWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
+				JFileChooser chooser = new JFileChooser(lastUsedDirectory[0]);
 				int result = chooser.showSaveDialog(thisReference);
 
-				if (result == JFileChooser.APPROVE_OPTION) {
-					BufferedOutputStream coverStream = null;
-					byte[] data = NapiFileHelper
-							.base64ToByteArray(napiResult[0].getSubsAsciiBin());
+				if (result != JFileChooser.APPROVE_OPTION)
+					return;
 
-					double fps = Double.parseDouble(mediaInfo.get(
-							MediaInfo.StreamKind.Video, 0, "FrameRate"));
-					Subtitles subtitles = null;
+				lastUsedDirectory[0] = chooser.getSelectedFile()
+						.getParentFile();
+
+				BufferedOutputStream coverStream = null;
+				byte[] data = NapiFileHelper.base64ToByteArray(napiResult[0]
+						.getSubsAsciiBin());
+
+				double fps = Double.parseDouble(mediaInfo.get(
+						MediaInfo.StreamKind.Video, 0, "FrameRate"));
+				Subtitles subtitles = null;
+				try {
+					subtitles = new MicroDVDParser().parse(data,
+							"windows-1250", fps);
+				} catch (WrongSubtitlesFormatException e) {
+					System.out.println("Error in line: "
+							+ e.getWrongLine()
+							+ "\nParsing with MicroDVDParser failed. Trying SubRip.\n");
+				}
+				if (subtitles == null) {
 					try {
-						subtitles = new MicroDVDParser().parse(data,
+						subtitles = new SubRipParser().parse(data,
 								"windows-1250", fps);
 					} catch (WrongSubtitlesFormatException e) {
 						System.out.println("Error in line: "
 								+ e.getWrongLine()
-								+ "\nParsing with MicroDVDParser failed. Trying SubRip.\n");
+								+ "\nParsing with SubRipParser failed. Trying MPL2.\n");
 					}
-					if (subtitles == null) {
-						try {
-							subtitles = new SubRipParser().parse(data,
-									"windows-1250", fps);
-						} catch (WrongSubtitlesFormatException e) {
-							System.out.println("Error in line: "
-									+ e.getWrongLine()
-									+ "\nParsing with SubRipParser failed. Trying MPL2.\n");
-						}
-					}
-					if (subtitles == null) {
-						try {
-							subtitles = new MPL2Parser().parse(data,
-									"windows-1250", fps);
-						} catch (WrongSubtitlesFormatException e) {
-							System.out.println("Error in line: "
-									+ e.getWrongLine()
-									+ "\nParsing with MPL2Parser failed. Trying TMPlayer.\n");
-						}
-					}
-					if (subtitles == null) {
-						try {
-							subtitles = new TMPlayerParser().parse(data,
-									"windows-1250", fps);
-						} catch (WrongSubtitlesFormatException e) {
-							System.out.println("Error in line: "
-									+ e.getWrongLine()
-									+ "\nParsing with TMPlayerParser failed. Can't save this file.\n");
-						}
-					}
-					if (subtitles == null) {
-						JOptionPane
-								.showMessageDialog(
-										thisReference,
-										"Cannot save, downloaded subtitles are in unsupported format.",
-										"Cannot save",
-										JOptionPane.ERROR_MESSAGE);
-						return;
-					}
-
-					subtitles.save(formatComboBox.getSelectedItem().toString(),
-							chooser.getSelectedFile(), charsetComboBox
-									.getSelectedItem().toString());
-
-					if (!saveCoverCheckBox.isSelected())
-						return;
-
+				}
+				if (subtitles == null) {
 					try {
-						coverStream = new BufferedOutputStream(
-								new FileOutputStream(new File(chooser
-										.getSelectedFile().getParent()
-										+ File.separator + "folder.jpg")));
+						subtitles = new MPL2Parser().parse(data,
+								"windows-1250", fps);
+					} catch (WrongSubtitlesFormatException e) {
+						System.out.println("Error in line: "
+								+ e.getWrongLine()
+								+ "\nParsing with MPL2Parser failed. Trying TMPlayer.\n");
+					}
+				}
+				if (subtitles == null) {
+					try {
+						subtitles = new TMPlayerParser().parse(data,
+								"windows-1250", fps);
+					} catch (WrongSubtitlesFormatException e) {
+						System.out.println("Error in line: "
+								+ e.getWrongLine()
+								+ "\nParsing with TMPlayerParser failed. Can't save this file.\n");
+					}
+				}
+				if (subtitles == null) {
+					JOptionPane
+							.showMessageDialog(
+									thisReference,
+									"Cannot save, downloaded subtitles are in unsupported format.",
+									"Cannot save", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
 
-						data = NapiFileHelper.base64ToByteArray(napiResult[0]
-								.getCoverAsciiBin());
-						coverStream.write(data);
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
+				subtitles.save(formatComboBox.getSelectedItem().toString(),
+						chooser.getSelectedFile(), charsetComboBox
+								.getSelectedItem().toString());
+
+				if (!saveCoverCheckBox.isSelected())
+					return;
+
+				try {
+					coverStream = new BufferedOutputStream(
+							new FileOutputStream(new File(chooser
+									.getSelectedFile().getParent()
+									+ File.separator + "folder.jpg")));
+
+					data = NapiFileHelper.base64ToByteArray(napiResult[0]
+							.getCoverAsciiBin());
+					coverStream.write(data);
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						if (coverStream != null) {
+							coverStream.flush();
+							coverStream.close();
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
-					} finally {
-						try {
-							if (coverStream != null) {
-								coverStream.flush();
-								coverStream.close();
-							}
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
 					}
 				}
 			}
