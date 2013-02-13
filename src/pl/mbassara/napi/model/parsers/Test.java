@@ -1,9 +1,5 @@
 package pl.mbassara.napi.model.parsers;
 
-import java.io.File;
-
-import pl.mbassara.napi.mediainfo.MediaInfo;
-import pl.mbassara.napi.mediainfo.MediaInfo.StreamKind;
 
 public class Test {
 	public static void main(String[] args) {
@@ -20,7 +16,8 @@ public class Test {
 		// System.out.println(timeTo);
 		// System.out.println(line);
 
-		String path = "F:\\Maciek\\Videos\\The Girl With The Dragon Tattoo {2011} DVDRIP. Jaybob\\The Girl With The Dragon Tattoo {2011} DVDRIP. Jaybob.avi";
+		// String path =
+		// "F:\\Maciek\\Videos\\The Girl With The Dragon Tattoo {2011} DVDRIP. Jaybob\\The Girl With The Dragon Tattoo {2011} DVDRIP. Jaybob.avi";
 		// String path2 =
 		// "F:\\Maciek\\Videos\\The Girl With The Dragon Tattoo {2011} DVDRIP. Jaybob\\1.txt";
 		//
@@ -37,8 +34,10 @@ public class Test {
 		// for (String name : Charset.availableCharsets().keySet())
 		// System.out.println(name);
 
-		MediaInfo mediaInfo = new MediaInfo();
-		mediaInfo.open(new File(path));
-		System.out.println(mediaInfo.get(StreamKind.Video, 0, "FrameRate"));
+		// MediaInfo mediaInfo = new MediaInfo();
+		// mediaInfo.open(new File(path));
+		// System.out.println(mediaInfo.get(StreamKind.Video, 0, "FrameRate"));
+
+		System.out.println(Double.parseDouble(""));
 	}
 }

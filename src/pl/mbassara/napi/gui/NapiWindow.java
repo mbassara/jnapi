@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -89,15 +90,16 @@ public class NapiWindow extends JFrame {
 		setContentPane(new JPanel(new BorderLayout()));
 		((JPanel) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 		setTitle("JNapi v0.1");
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		add(mainPanel, BorderLayout.CENTER);
 
-		setIconImage(new ImageIcon("./icon.png").getImage());
+		try {
+			Image icon = ImageIO.read(getClass().getClassLoader()
+					.getResourceAsStream("icon.png"));
+			setIconImage(icon);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void initializeNorthPanel() {
@@ -337,7 +339,18 @@ public class NapiWindow extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new NapiWindow().setVisible(true);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			new NapiWindow().setVisible(true);
+		} catch (UnsatisfiedLinkError e) {
+			JOptionPane.showMessageDialog(null,
+					"mediainfo.dll library is not found!", "Error",
+					JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 }

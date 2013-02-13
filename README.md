@@ -1,4 +1,4 @@
-napi
+JNapi
 ====
 
-Cross-platform napiproject client
+Napiprojekt client written in java. It requires mediainfo library to retrieve metadata from movie files.

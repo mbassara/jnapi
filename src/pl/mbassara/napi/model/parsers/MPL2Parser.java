@@ -26,16 +26,21 @@ public class MPL2Parser extends Parser {
 				if (line.equals("") || line.matches("\\s*"))
 					continue;
 
-				if (!line.matches("\\[\\d+\\]\\[\\d+\\].*"))
+				if (!line.matches("\\[\\d*\\]\\[\\d*\\].*"))
 					throw new WrongSubtitlesFormatException(line);
 
 				ArrayList<String> lines = new ArrayList<String>();
 
-				int frameFrom = Integer.parseInt(line.substring(1,
-						line.indexOf("]")));
+				String frameFromString = line.substring(1, line.indexOf("]"));
+				if (frameFromString.equals(""))
+					frameFromString = "0";
+				int frameFrom = Integer.parseInt(frameFromString);
 				line = line.substring(line.indexOf("]") + 1);
-				int frameTo = Integer.parseInt(line.substring(1,
-						line.indexOf("]")));
+
+				String frameToString = line.substring(1, line.indexOf("]"));
+				if (frameToString.equals(""))
+					frameToString = "0";
+				int frameTo = Integer.parseInt(frameToString);
 				line = line.substring(line.indexOf("]") + 1);
 
 				for (String subline : line.split("\\|"))
