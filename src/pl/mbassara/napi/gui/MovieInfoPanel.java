@@ -3,6 +3,7 @@ package pl.mbassara.napi.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Label;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
@@ -13,14 +14,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import pl.mbassara.napi.utils.NapiFileHelper;
-import pl.mbassara.napi.utils.NapiResult;
-import pl.mbassara.napi.utils.Napiprojekt;
-import pl.mbassara.napi.utils.Napiprojekt.Mode;
+import pl.mbassara.napi.connections.NapiFileHelper;
+import pl.mbassara.napi.connections.NapiResult;
+import pl.mbassara.napi.connections.Napiprojekt;
+import pl.mbassara.napi.connections.Napiprojekt.Mode;
 
 public class MovieInfoPanel extends JPanel {
 
 	private static final long serialVersionUID = 5792176431005929181L;
+	private final int HEIGHT = 250;
+	private final int WIDTH = 500;
 
 	public MovieInfoPanel(NapiResult result) {
 		NapiResult napiResult = result;
@@ -32,11 +35,15 @@ public class MovieInfoPanel extends JPanel {
 		ImagePanel coverPanel = new ImagePanel(
 				NapiFileHelper.base64ToByteArray(napiResult.getCoverAsciiBin()));
 
-		JPanel leftInfoPanel = new JPanel(new GridLayout(8, 1));
-		leftInfoPanel.setPreferredSize(new Dimension(120, 600));
-		JPanel rightInfoPanel = new JPanel(new GridLayout(8, 1));
-		rightInfoPanel.setPreferredSize(new Dimension(200, 600));
+		setSize(WIDTH, HEIGHT);
+		JPanel infoPanel = new JPanel(new BorderLayout());
+		JPanel leftInfoPanel = new JPanel(new GridLayout(10, 1));
+		leftInfoPanel.setPreferredSize(new Dimension(120, HEIGHT));
+		JPanel rightInfoPanel = new JPanel(new GridLayout(10, 1));
+		rightInfoPanel.setPreferredSize(new Dimension(200, HEIGHT));
 
+		leftInfoPanel.add(new Label());
+		rightInfoPanel.add(new Label());
 		leftInfoPanel.add(new JLabel("Title:  ", JLabel.RIGHT));
 		rightInfoPanel
 				.add(new JLabel("<html>" + result.getTitle() + "</html>"));
@@ -60,17 +67,20 @@ public class MovieInfoPanel extends JPanel {
 		leftInfoPanel.add(new JLabel("Music:  ", JLabel.RIGHT));
 		rightInfoPanel
 				.add(new JLabel("<html>" + result.getMusic() + "</html>"));
+		leftInfoPanel.add(new Label());
+		rightInfoPanel.add(new Label());
 
-		add(coverPanel, BorderLayout.NORTH);
-		add(leftInfoPanel, BorderLayout.WEST);
-		add(rightInfoPanel, BorderLayout.EAST);
+		add(coverPanel, BorderLayout.WEST);
+		add(infoPanel, BorderLayout.EAST);
+		infoPanel.add(leftInfoPanel, BorderLayout.WEST);
+		infoPanel.add(rightInfoPanel, BorderLayout.EAST);
 
-		JPanel southPanel = new JPanel(new BorderLayout(20, 10));
-		add(southPanel, BorderLayout.SOUTH);
+		JPanel southPanel = new JPanel(new BorderLayout());
+		infoPanel.add(southPanel, BorderLayout.SOUTH);
 
 		JPanel votesPanel = new JPanel(new GridLayout(1, 4));
 		votesPanel.add(new JLabel("Rating:  ", JLabel.RIGHT));
-		votesPanel.add(new JLabel(result.getRating() / 100.0 + ""));
+		votesPanel.add(new JLabel(result.getRating() + ""));
 		votesPanel.add(new JLabel("Votes:  ", JLabel.RIGHT));
 		votesPanel.add(new JLabel(result.getVotes() + ""));
 
@@ -100,7 +110,7 @@ public class MovieInfoPanel extends JPanel {
 		JFrame frame = new JFrame();
 		frame.add(new MovieInfoPanel(result));
 		frame.setVisible(true);
-		frame.setSize(350, 500);
+		frame.setSize(500, 300);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}
 

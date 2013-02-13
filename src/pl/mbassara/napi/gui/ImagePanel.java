@@ -17,7 +17,7 @@ public class ImagePanel extends JPanel {
 
 	public ImagePanel(byte[] imageData) {
 		imagePanel = new InnerImagePanel(imageData);
-		setLayout(new FlowLayout(FlowLayout.CENTER));
+		setLayout(new FlowLayout(FlowLayout.CENTER, 20, 30));
 		add(imagePanel);
 	}
 
