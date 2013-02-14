@@ -25,10 +25,16 @@ public abstract class Napiprojekt {
 		SUBS, COVER, SUBS_COVER
 	}
 
+	public enum Lang {
+		PL, ENG
+	}
+
 	private static final String napiUrl = "http://www.napiprojekt.pl/api/api-napiprojekt3.php";
 
-	private static String getBody(String hash, Mode mode) {
-		String result = "downloaded_subtitles_lang=PL&downloaded_subtitles_txt=1&client_ver=1.0&downloaded_subtitles_id="
+	private static String getBody(String hash, Mode mode, Lang lang) {
+		String result = "downloaded_subtitles_lang=";
+		result += lang
+				+ "&downloaded_subtitles_txt=1&client_ver=1.0&downloaded_subtitles_id="
 				+ hash;
 		result += "&client=AutoMove&mode=" + (mode.ordinal() + 1);
 		result += "&downloaded_cover_id=" + hash;
@@ -45,10 +51,12 @@ public abstract class Napiprojekt {
 	 * @return NapiResult object representing server's response for this request
 	 * @throws FileNotFoundException
 	 */
-	public static NapiResult request(File file, Mode mode)
+	public static NapiResult request(File file, Mode mode, Lang lang)
 			throws FileNotFoundException {
-		String body = getBody(NapiFileHelper.getHash(file), mode);
+		String body = getBody(NapiFileHelper.getHash(file), mode, lang);
 		String xmlResponse = NapiHTTPHelper.sendRequest(napiUrl, body);
+
+		System.out.println("XML:\n" + xmlResponse);
 
 		NapiXMLHandler handler = new NapiXMLHandler();
 		try {

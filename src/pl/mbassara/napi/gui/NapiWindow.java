@@ -33,6 +33,7 @@ import javax.swing.event.ChangeListener;
 import pl.mbassara.napi.connections.NapiFileHelper;
 import pl.mbassara.napi.connections.NapiResult;
 import pl.mbassara.napi.connections.Napiprojekt;
+import pl.mbassara.napi.connections.Napiprojekt.Lang;
 import pl.mbassara.napi.connections.Napiprojekt.Mode;
 import pl.mbassara.napi.mediainfo.MediaInfo;
 import pl.mbassara.napi.model.Subtitles;
@@ -59,8 +60,6 @@ public class NapiWindow extends JFrame {
 	private final JPanel southPanel = new JPanel(new FlowLayout(
 			FlowLayout.RIGHT));
 	private final MovieInfoPanel[] infoPanel = new MovieInfoPanel[1];
-	private final JPanel startButtonPanel = new JPanel(new FlowLayout(
-			FlowLayout.CENTER));
 	private final JButton startButton = new JButton("Fetch data");
 	private final JButton saveButton = new JButton("Save subtitles");
 	private final JCheckBox showInfoCheckBox = new JCheckBox("Show movie info");
@@ -71,6 +70,8 @@ public class NapiWindow extends JFrame {
 			"SubRip", "MicroDVD", "MPL2", "TMPlayer" });
 	private final JLabel formatLabel = new JLabel("Format:");
 	private final JLabel charsetLabel = new JLabel("Charset:");
+	private final JComboBox langComboBox = new JComboBox(new String[] {
+			"Polish", "English" });
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 	private final MediaInfo mediaInfo = new MediaInfo();
@@ -135,7 +136,8 @@ public class NapiWindow extends JFrame {
 		fileSelectionPanel.add(filePathTextField);
 		fileSelectionPanel.add(openFileButton);
 		northPanel.add(fileSelectionPanel, BorderLayout.NORTH);
-		northPanel.add(startButtonPanel, BorderLayout.SOUTH);
+		JPanel fetchPanel = new JPanel(new GridLayout(1, 2));
+		northPanel.add(fetchPanel, BorderLayout.SOUTH);
 
 		startButton.addActionListener(new ActionListener() {
 			@Override
@@ -145,18 +147,32 @@ public class NapiWindow extends JFrame {
 						if (showInfoCheckBox.isSelected())
 							showInfoCheckBox.doClick();
 						showInfoCheckBox.setEnabled(false);
+						setOptionsEnabled(false);
 						thisReference.remove(infoPanel[0]);
 					}
-					napiResult[0] = Napiprojekt.request(new File(
-							filePathTextField.getText()), Mode.SUBS_COVER);
 
-					if (!napiResult[0].isStatus())
+					Lang lang = langComboBox.getSelectedItem().toString()
+							.equals("English") ? Lang.ENG : Lang.PL;
+
+					napiResult[0] = Napiprojekt
+							.request(new File(filePathTextField.getText()),
+									Mode.SUBS_COVER, lang);
+
+					if (!napiResult[0].isStatus()) {
 						JOptionPane
 								.showMessageDialog(
 										thisReference,
 										"Can't find suitable subtitles in napiprojekt database.",
 										"Subtitles not found",
 										JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+
+					System.out.println("\n\nRAW:\n"
+							+ napiResult[0].getSubsAsciiBin()
+							+ "\n\nSUBS:\n"
+							+ NapiFileHelper.decodeBase64TextData(napiResult[0]
+									.getSubsAsciiBin()));
 
 					setOptionsEnabled(true);
 
@@ -177,6 +193,12 @@ public class NapiWindow extends JFrame {
 				}
 			}
 		});
+		JPanel startButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		fetchPanel.add(langPanel);
+		fetchPanel.add(startButtonPanel);
+		langPanel.add(new JLabel("Language:"));
+		langPanel.add(langComboBox);
 		startButtonPanel.add(startButton);
 	}
 

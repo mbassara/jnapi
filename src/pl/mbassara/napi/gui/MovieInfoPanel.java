@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 import pl.mbassara.napi.connections.NapiFileHelper;
 import pl.mbassara.napi.connections.NapiResult;
 import pl.mbassara.napi.connections.Napiprojekt;
+import pl.mbassara.napi.connections.Napiprojekt.Lang;
 import pl.mbassara.napi.connections.Napiprojekt.Mode;
 
 public class MovieInfoPanel extends JPanel {
@@ -106,7 +107,7 @@ public class MovieInfoPanel extends JPanel {
 				.request(
 						new File(
 								"F:\\Maciek\\Videos\\Star Wars Episode I  1999 720p BRRip [A Release-Lounge H264]\\Star Wars Episode I  1999 720p BRRip [A Release-Lounge H264].avi"),
-						Mode.SUBS_COVER);
+						Mode.SUBS_COVER, Lang.PL);
 		JFrame frame = new JFrame();
 		frame.add(new MovieInfoPanel(result));
 		frame.setVisible(true);

@@ -43,7 +43,7 @@ public class SubRipParser extends Parser {
 					charset));
 			Subtitles subtitles = new Subtitles(fps);
 			Subtitle tmpSubtitle = null;
-			String line;
+			String line = "", prevLine = "";
 
 			while ((line = reader.readLine()) != null) {
 				if (state == STATE.LINE_NO) {
@@ -82,7 +82,10 @@ public class SubRipParser extends Parser {
 
 					tmpSubtitle.addLine(line);
 				}
+				prevLine = line;
 			}
+			if (!prevLine.equals("") && !prevLine.matches("\\s*"))
+				subtitles.addSubtitle(tmpSubtitle);
 
 			return subtitles;
 
