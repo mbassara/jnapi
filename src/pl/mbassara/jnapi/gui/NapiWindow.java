@@ -39,7 +39,7 @@ import pl.mbassara.jnapi.model.parsers.MicroDVDParser;
 import pl.mbassara.jnapi.model.parsers.SubRipParser;
 import pl.mbassara.jnapi.model.parsers.TMPlayerParser;
 import pl.mbassara.jnapi.model.parsers.WrongSubtitlesFormatException;
-import pl.mbassara.jnapi.services.napiprojekt.NapiFileHelper;
+import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Lang;
@@ -61,19 +61,19 @@ public class NapiWindow extends JFrame {
 	private final JPanel northPanel = new JPanel(new BorderLayout());
 	private final JPanel southPanel = new JPanel(new FlowLayout(
 			FlowLayout.RIGHT));
-	private final MovieInfoPanel[] infoPanel = new MovieInfoPanel[1];
+	private final NapiprojektMovieInfoPanel[] infoPanel = new NapiprojektMovieInfoPanel[1];
 	private final JButton startButton = new JButton("Fetch data");
 	private final JButton saveButton = new JButton("Save subtitles");
 	private final JCheckBox showInfoCheckBox = new JCheckBox("Show movie info");
 	private final JCheckBox saveCoverCheckBox = new JCheckBox("Save cover");
-	private final JComboBox charsetComboBox = new JComboBox(new String[] {
-			"windows-1250", "ISO-8859-2", "UTF-8" });
-	private final JComboBox formatComboBox = new JComboBox(new String[] {
-			"MicroDVD", "SubRip", "MPL2", "TMPlayer" });
+	private final JComboBox<String> charsetComboBox = new JComboBox<String>(
+			new String[] { "windows-1250", "ISO-8859-2", "UTF-8" });
+	private final JComboBox<String> formatComboBox = new JComboBox<String>(
+			new String[] { "MicroDVD", "SubRip", "MPL2", "TMPlayer" });
 	private final JLabel formatLabel = new JLabel("Format:");
 	private final JLabel charsetLabel = new JLabel("Charset:");
-	private final JComboBox langComboBox = new JComboBox(new String[] {
-			"Polish", "English" });
+	private final JComboBox<String> langComboBox = new JComboBox<String>(
+			new String[] { "Polish", "English" });
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 	private final MediaInfo mediaInfo = new MediaInfo();
@@ -188,7 +188,8 @@ public class NapiWindow extends JFrame {
 					if (!napiResult[0].isCoverStatus())
 						return;
 
-					infoPanel[0] = new MovieInfoPanel(napiResult[0]);
+					infoPanel[0] = NapiprojektMovieInfoPanel
+							.getInstance(napiResult[0]);
 					infoPanel[0].setVisible(false);
 					thisReference.add(infoPanel[0], BorderLayout.SOUTH);
 					showInfoCheckBox.setEnabled(true);
@@ -279,7 +280,7 @@ public class NapiWindow extends JFrame {
 						.getParentFile();
 
 				BufferedOutputStream coverStream = null;
-				byte[] data = NapiFileHelper.base64ToByteArray(napiResult[0]
+				byte[] data = FileHelper.base64ToByteArray(napiResult[0]
 						.getSubsAsciiBin());
 
 				double fps = Double.parseDouble(mediaInfo.get(
@@ -350,7 +351,7 @@ public class NapiWindow extends JFrame {
 									.getSelectedFile().getParent()
 									+ File.separator + "folder.jpg")));
 
-					data = NapiFileHelper.base64ToByteArray(napiResult[0]
+					data = FileHelper.base64ToByteArray(napiResult[0]
 							.getCoverAsciiBin());
 					coverStream.write(data);
 				} catch (FileNotFoundException e) {

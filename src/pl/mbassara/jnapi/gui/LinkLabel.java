@@ -24,6 +24,14 @@ public class LinkLabel extends JButton implements ActionListener {
 	private URI target;
 
 	/**
+	 * Creates empty LinkLabel
+	 */
+	public LinkLabel() {
+		this(null, "");
+	}
+
+	/**
+	 * Creates LinkLabel for given target URI
 	 * 
 	 * @param target
 	 *            Target site address which has to be opened in web browser.
@@ -33,6 +41,7 @@ public class LinkLabel extends JButton implements ActionListener {
 	}
 
 	/**
+	 * Creates LinkLabel for given target URI and text
 	 * 
 	 * @param target
 	 *            Target site address which has to be opened in web browser.
@@ -42,15 +51,21 @@ public class LinkLabel extends JButton implements ActionListener {
 	public LinkLabel(URI target, String text) {
 		super(text);
 		this.target = target;
+		setEnabled(target != null);
 		setText("<HTML><FONT color=\"#000099\"><U>" + text
 				+ "</U></FONT></HTML>");
 		setHorizontalAlignment(SwingConstants.CENTER);
 		setBorderPainted(false);
 		setOpaque(false);
 		setContentAreaFilled(false);
-		setToolTipText(target.toString());
+		setToolTipText((target != null ? target.toString() : ""));
 		addActionListener(this);
 		setFocusable(false);
+	}
+
+	public void setTarget(URI target) {
+		setEnabled(target != null);
+		this.target = target;
 	}
 
 	@Override

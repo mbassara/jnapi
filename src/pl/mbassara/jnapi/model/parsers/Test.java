@@ -1,6 +1,5 @@
 package pl.mbassara.jnapi.model.parsers;
 
-
 public class Test {
 	public static void main(String[] args) {
 		// String line = "{743}{814}- Jaki gatunek?|- Nie wiem.";
@@ -38,6 +37,5 @@ public class Test {
 		// mediaInfo.open(new File(path));
 		// System.out.println(mediaInfo.get(StreamKind.Video, 0, "FrameRate"));
 
-		System.out.println(Double.parseDouble(""));
 	}
 }

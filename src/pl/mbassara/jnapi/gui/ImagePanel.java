@@ -15,9 +15,22 @@ public class ImagePanel extends JPanel {
 	private static final long serialVersionUID = -1623285541442018663L;
 	private InnerImagePanel imagePanel;
 
+	public ImagePanel() {
+		this(null);
+	}
+
 	public ImagePanel(byte[] imageData) {
-		imagePanel = new InnerImagePanel(imageData);
 		setLayout(new FlowLayout(FlowLayout.CENTER, 20, 30));
+
+		if (imageData != null)
+			setImage(imageData);
+	}
+
+	public void setImage(byte[] imageData) {
+		if (this.imagePanel != null)
+			remove(this.imagePanel);
+
+		this.imagePanel = new InnerImagePanel(imageData);
 		add(imagePanel);
 	}
 

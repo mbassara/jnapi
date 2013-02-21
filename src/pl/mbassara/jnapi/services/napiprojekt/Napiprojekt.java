@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
 
 /**
@@ -55,7 +56,7 @@ public abstract class Napiprojekt {
 	 */
 	public static NapiResult request(File file, Mode mode, Lang lang)
 			throws FileNotFoundException {
-		String body = getBody(NapiFileHelper.getHash(file), mode, lang);
+		String body = getBody(FileHelper.getHash(file), mode, lang);
 		String xmlResponse = HTTPHelper.sendNapiprojektRequest(napiUrl, body);
 
 		NapiXMLHandler handler = new NapiXMLHandler();
