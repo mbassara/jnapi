@@ -61,19 +61,20 @@ public class NapiWindow extends JFrame {
 	private final JPanel northPanel = new JPanel(new BorderLayout());
 	private final JPanel southPanel = new JPanel(new FlowLayout(
 			FlowLayout.RIGHT));
-	private final NapiprojektMovieInfoPanel[] infoPanel = new NapiprojektMovieInfoPanel[1];
 	private final JButton startButton = new JButton("Fetch data");
 	private final JButton saveButton = new JButton("Save subtitles");
 	private final JCheckBox showInfoCheckBox = new JCheckBox("Show movie info");
 	private final JCheckBox saveCoverCheckBox = new JCheckBox("Save cover");
-	private final JComboBox<String> charsetComboBox = new JComboBox<String>(
-			new String[] { "windows-1250", "ISO-8859-2", "UTF-8" });
-	private final JComboBox<String> formatComboBox = new JComboBox<String>(
-			new String[] { "MicroDVD", "SubRip", "MPL2", "TMPlayer" });
+	private final JComboBox charsetComboBox = new JComboBox(new String[] {
+			"windows-1250", "ISO-8859-2", "UTF-8" });
+	private final JComboBox formatComboBox = new JComboBox(new String[] {
+			"MicroDVD", "SubRip", "MPL2", "TMPlayer" });
 	private final JLabel formatLabel = new JLabel("Format:");
 	private final JLabel charsetLabel = new JLabel("Charset:");
-	private final JComboBox<String> langComboBox = new JComboBox<String>(
-			new String[] { "Polish", "English" });
+	private final JComboBox langComboBox = new JComboBox(new String[] {
+			"Polish", "English" });
+	private final NapiprojektMovieInfoPanel napiprojektInfoPanel = NapiprojektMovieInfoPanel
+			.getInstance();
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 	private final MediaInfo mediaInfo = new MediaInfo();
@@ -158,13 +159,11 @@ public class NapiWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					if (infoPanel[0] != null) {
-						if (showInfoCheckBox.isSelected())
-							showInfoCheckBox.doClick();
-						showInfoCheckBox.setEnabled(false);
-						setOptionsEnabled(false);
-						thisReference.remove(infoPanel[0]);
-					}
+					if (showInfoCheckBox.isSelected())
+						showInfoCheckBox.doClick();
+					showInfoCheckBox.setEnabled(false);
+					setOptionsEnabled(false);
+					thisReference.remove(napiprojektInfoPanel);
 
 					Lang lang = langComboBox.getSelectedItem().toString()
 							.equals("English") ? Lang.ENG : Lang.PL;
@@ -188,10 +187,9 @@ public class NapiWindow extends JFrame {
 					if (!napiResult[0].isCoverStatus())
 						return;
 
-					infoPanel[0] = NapiprojektMovieInfoPanel
-							.getInstance(napiResult[0]);
-					infoPanel[0].setVisible(false);
-					thisReference.add(infoPanel[0], BorderLayout.SOUTH);
+					napiprojektInfoPanel.setContent(napiResult[0]);
+					napiprojektInfoPanel.setVisible(false);
+					thisReference.add(napiprojektInfoPanel, BorderLayout.SOUTH);
 					showInfoCheckBox.setEnabled(true);
 					showInfoCheckBox.doClick();
 
@@ -221,17 +219,15 @@ public class NapiWindow extends JFrame {
 		showInfoCheckBox.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				if (infoPanel[0] == null)
-					return;
 
 				if (showInfoCheckBox.isSelected()) {
 					thisReference.setPreferredSize(new Dimension(WIDTH, HEIGHT
-							+ infoPanel[0].getHeight()));
-					infoPanel[0].setVisible(true);
+							+ napiprojektInfoPanel.getHeight()));
+					napiprojektInfoPanel.setVisible(true);
 					thisReference.doLayout();
 					thisReference.pack();
 				} else {
-					infoPanel[0].setVisible(false);
+					napiprojektInfoPanel.setVisible(false);
 					thisReference
 							.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 					thisReference.doLayout();

@@ -52,8 +52,7 @@ public class LinkLabel extends JButton implements ActionListener {
 		super(text);
 		this.target = target;
 		setEnabled(target != null);
-		setText("<HTML><FONT color=\"#000099\"><U>" + text
-				+ "</U></FONT></HTML>");
+		setText(text);
 		setHorizontalAlignment(SwingConstants.CENTER);
 		setBorderPainted(false);
 		setOpaque(false);
@@ -66,6 +65,12 @@ public class LinkLabel extends JButton implements ActionListener {
 	public void setTarget(URI target) {
 		setEnabled(target != null);
 		this.target = target;
+	}
+
+	@Override
+	public void setText(String text) {
+		super.setText("<HTML><FONT color=\"#000099\"><U>" + text
+				+ "</U></FONT></HTML>");
 	}
 
 	@Override

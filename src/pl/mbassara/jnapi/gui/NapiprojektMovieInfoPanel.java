@@ -115,6 +115,10 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 		}
 	}
 
+	public static NapiprojektMovieInfoPanel getInstance() {
+		return getInstance(null);
+	}
+
 	public static NapiprojektMovieInfoPanel getInstance(NapiResult result) {
 		if (result == null || !result.isCoverStatus()) {
 			try {
@@ -187,11 +191,18 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 			e.printStackTrace();
 		}
 
+		// NapiResult result = Napiprojekt
+		// .request(
+		// new File(
+		// "/media/maciek/Media/Maciek/Videos/Total Recall {2012} DVDRIP. Jaybob/Total Recall {2012} DVDRIP. Jaybob.avi"),
+		// Mode.SUBS_COVER, Lang.PL);
+
 		NapiResult result = Napiprojekt
 				.request(
 						new File(
-								"/media/maciek/Media/Maciek/Videos/Total Recall {2012} DVDRIP. Jaybob/Total Recall {2012} DVDRIP. Jaybob.avi"),
+								"F:\\Maciek\\Videos\\Star Wars Episode I  1999 720p BRRip [A Release-Lounge H264]\\Star Wars Episode I  1999 720p BRRip [A Release-Lounge H264].avi"),
 						Mode.SUBS_COVER, Lang.PL);
+
 		JFrame frame = new JFrame();
 		NapiprojektMovieInfoPanel infoPanel;
 		frame.add(infoPanel = NapiprojektMovieInfoPanel.getInstance(null));
