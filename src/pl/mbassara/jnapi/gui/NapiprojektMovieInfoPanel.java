@@ -1,6 +1,7 @@
 package pl.mbassara.jnapi.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Label;
@@ -47,10 +48,7 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 	private JLabel votesLabel = new JLabel();
 	private LinkLabel filmWebLinkLabel = new LinkLabel();
 
-	private NapiprojektMovieInfoPanel(byte[] imageData, String title,
-			String year, String country, String genre, String direction,
-			String screenplay, String music, String rating, String votes,
-			String filmWebUrl) {
+	private NapiprojektMovieInfoPanel() {
 
 		setLayout(new BorderLayout());
 
@@ -93,26 +91,6 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 
 		southPanel.add(votesPanel, BorderLayout.NORTH);
 		southPanel.add(filmWebLinkLabel, BorderLayout.SOUTH);
-
-		coverPanel.setImage(imageData);
-
-		titleLabel.setText("<html>" + title + "</html>");
-		yearLabel.setText("<html>" + year + "</html>");
-		countryLabel.setText("<html>" + country + "</html>");
-		genreLabel.setText("<html>" + genre + "</html>");
-		directionLabel.setText("<html>" + direction + "</html>");
-		screenplayLabel.setText("<html>" + screenplay + "</html>");
-		musicLabel.setText("<html>" + music + "</html>");
-		ratingLabel.setText(rating);
-		votesLabel.setText(votes);
-
-		try {
-			filmWebLinkLabel.setTarget(new URI(filmWebUrl));
-			filmWebLinkLabel
-					.setText("See the site of this movie on filmweb.pl");
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public static NapiprojektMovieInfoPanel getInstance() {
@@ -120,6 +98,13 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 	}
 
 	public static NapiprojektMovieInfoPanel getInstance(NapiResult result) {
+		NapiprojektMovieInfoPanel instance = new NapiprojektMovieInfoPanel();
+		instance.setContent(result);
+
+		return instance;
+	}
+
+	public void setContent(NapiResult result) {
 		if (result == null || !result.isCoverStatus()) {
 			try {
 				InputStream stream = NapiprojektMovieInfoPanel.class
@@ -131,31 +116,17 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 
 				byte[] imageData = Arrays.copyOf(buff, len);
 
-				return new NapiprojektMovieInfoPanel(imageData, "", "", "", "",
-						"", "", "", "", "", "");
+				setContent(imageData, "", "", "", "", "", "", "", "", "", "");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			return null;
-		}
-
-		return new NapiprojektMovieInfoPanel(
-				FileHelper.base64ToByteArray(result.getCoverAsciiBin()),
-				result.getTitle(), result.getYear(), result.getEnCountry(),
-				result.getEnGenre(), result.getDirector(),
-				result.getScreenPlay(), result.getMusic(), result.getRating()
-						+ "", result.getVotes() + "", result.getFilmweb());
-	}
-
-	public void setContent(NapiResult result) {
-		if (result == null || !result.isCoverStatus())
-			return;
-
-		setContent(FileHelper.base64ToByteArray(result.getCoverAsciiBin()),
-				result.getTitle(), result.getYear(), result.getEnCountry(),
-				result.getEnGenre(), result.getDirector(),
-				result.getScreenPlay(), result.getMusic(), result.getRating()
-						+ "", result.getVotes() + "", result.getFilmweb());
+		} else
+			setContent(FileHelper.base64ToByteArray(result.getCoverAsciiBin()),
+					result.getTitle(), result.getYear(), result.getEnCountry(),
+					result.getEnGenre(), result.getDirector(),
+					result.getScreenPlay(), result.getMusic(),
+					result.getRating() + "", result.getVotes() + "",
+					result.getFilmweb());
 	}
 
 	public void setContent(byte[] imageData, String title, String year,
@@ -181,6 +152,31 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void setEnabled(boolean enabled) {
+
+		for (Component component : getComponents()) {
+			component.setEnabled(enabled);
+			System.out.println(component);
+		}
+		//
+		// coverPanel.setEnabled(enabled);
+		//
+		// titleLabel.setEnabled(enabled);
+		// yearLabel.setEnabled(enabled);
+		// countryLabel.setEnabled(enabled);
+		// genreLabel.setEnabled(enabled);
+		// directionLabel.setEnabled(enabled);
+		// screenplayLabel.setEnabled(enabled);
+		// musicLabel.setEnabled(enabled);
+		// ratingLabel.setEnabled(enabled);
+		// votesLabel.setEnabled(enabled);
+		//
+		// filmWebLinkLabel.setEnabled(enabled);
+
+		super.setEnabled(enabled);
 	}
 
 	public static void main(String[] args) throws FileNotFoundException,

@@ -29,8 +29,6 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import pl.mbassara.jnapi.mediainfo.MediaInfo;
 import pl.mbassara.jnapi.model.Subtitles;
@@ -59,11 +57,8 @@ public class NapiWindow extends JFrame {
 	private final JPanel fileSelectionPanel = new JPanel(new FlowLayout(
 			FlowLayout.CENTER));
 	private final JPanel northPanel = new JPanel(new BorderLayout());
-	private final JPanel southPanel = new JPanel(new FlowLayout(
-			FlowLayout.RIGHT));
 	private final JButton startButton = new JButton("Fetch data");
 	private final JButton saveButton = new JButton("Save subtitles");
-	private final JCheckBox showInfoCheckBox = new JCheckBox("Show movie info");
 	private final JCheckBox saveCoverCheckBox = new JCheckBox("Save cover");
 	private final JComboBox charsetComboBox = new JComboBox(new String[] {
 			"windows-1250", "ISO-8859-2", "UTF-8" });
@@ -83,19 +78,21 @@ public class NapiWindow extends JFrame {
 	public NapiWindow() {
 		initialize();
 		initializeNorthPanel();
-		initializeSouthPanel();
 		initializeOptionsPanel();
 		pack();
 	}
 
 	private void initialize() {
-		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		setResizable(false);
 		setContentPane(new JPanel(new BorderLayout()));
 		((JPanel) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 		setTitle("JNapi v0.1");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		add(mainPanel, BorderLayout.CENTER);
+		add(napiprojektInfoPanel, BorderLayout.SOUTH);
+		napiprojektInfoPanel.setEnabled(false);
+		setPreferredSize(new Dimension(WIDTH, HEIGHT
+				+ napiprojektInfoPanel.getHeight()));
 
 		try {
 			Image icon = ImageIO.read(getClass().getClassLoader()
@@ -143,6 +140,9 @@ public class NapiWindow extends JFrame {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+
+				setOptionsEnabled(false);
+				napiprojektInfoPanel.setContent(null);
 			}
 		});
 
@@ -159,11 +159,8 @@ public class NapiWindow extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					if (showInfoCheckBox.isSelected())
-						showInfoCheckBox.doClick();
-					showInfoCheckBox.setEnabled(false);
 					setOptionsEnabled(false);
-					thisReference.remove(napiprojektInfoPanel);
+					napiprojektInfoPanel.setContent(null);
 
 					Lang lang = langComboBox.getSelectedItem().toString()
 							.equals("English") ? Lang.ENG : Lang.PL;
@@ -188,11 +185,6 @@ public class NapiWindow extends JFrame {
 						return;
 
 					napiprojektInfoPanel.setContent(napiResult[0]);
-					napiprojektInfoPanel.setVisible(false);
-					thisReference.add(napiprojektInfoPanel, BorderLayout.SOUTH);
-					showInfoCheckBox.setEnabled(true);
-					showInfoCheckBox.doClick();
-
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(thisReference,
@@ -208,33 +200,6 @@ public class NapiWindow extends JFrame {
 		langPanel.add(new JLabel("Language:"));
 		langPanel.add(langComboBox);
 		startButtonPanel.add(startButton);
-	}
-
-	private void initializeSouthPanel() {
-		mainPanel.add(southPanel, BorderLayout.SOUTH);
-
-		showInfoCheckBox.setEnabled(false);
-		southPanel.setBorder(new EmptyBorder(20, 0, 0, 0));
-		southPanel.add(showInfoCheckBox);
-		showInfoCheckBox.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent arg0) {
-
-				if (showInfoCheckBox.isSelected()) {
-					thisReference.setPreferredSize(new Dimension(WIDTH, HEIGHT
-							+ napiprojektInfoPanel.getHeight()));
-					napiprojektInfoPanel.setVisible(true);
-					thisReference.doLayout();
-					thisReference.pack();
-				} else {
-					napiprojektInfoPanel.setVisible(false);
-					thisReference
-							.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-					thisReference.doLayout();
-					thisReference.pack();
-				}
-			}
-		});
 	}
 
 	private void initializeOptionsPanel() {
