@@ -17,8 +17,8 @@ public interface IResponsePart {
 
 	public boolean setValueForName(String name, String value);
 
-	public ArrayList<? extends ResponseField> getFields();
+	public ArrayList<ResponseField> getFields();
 
-	public ArrayList<? extends ResponseField> getFieldsForName(String name);
+	public ArrayList<ResponseField> getFieldsForName(String name);
 
 }

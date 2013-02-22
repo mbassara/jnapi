@@ -34,13 +34,17 @@ public class ResponseField implements IResponsePart {
 		this.value = value;
 	}
 
+	public void concatValue(String value) {
+		this.value += value;
+	}
+
 	@Override
 	public boolean hasName(String name) {
 		return this.name.equals(name);
 	}
 
 	@Override
-	public ArrayList<? extends ResponseField> getFields() {
+	public ArrayList<ResponseField> getFields() {
 		ArrayList<ResponseField> result = new ArrayList<ResponseField>();
 		result.add(this);
 
@@ -48,7 +52,7 @@ public class ResponseField implements IResponsePart {
 	}
 
 	@Override
-	public ArrayList<? extends ResponseField> getFieldsForName(String name) {
+	public ArrayList<ResponseField> getFieldsForName(String name) {
 		ArrayList<ResponseField> result = new ArrayList<ResponseField>();
 		if (this.name.equals(name))
 			result.add(this);

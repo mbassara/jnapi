@@ -43,7 +43,7 @@ public class ResponseStruct implements IResponsePart {
 	}
 
 	@Override
-	public ArrayList<? extends ResponseField> getFields() {
+	public ArrayList<ResponseField> getFields() {
 		ArrayList<ResponseField> result = new ArrayList<ResponseField>();
 
 		for (IResponsePart part : parts)
@@ -53,7 +53,7 @@ public class ResponseStruct implements IResponsePart {
 	}
 
 	@Override
-	public ArrayList<? extends ResponseField> getFieldsForName(String name) {
+	public ArrayList<ResponseField> getFieldsForName(String name) {
 		if (this.name.equals(name))
 			return getFields();
 

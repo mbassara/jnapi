@@ -48,15 +48,13 @@ public class NapiWindow extends JFrame {
 	private static final long serialVersionUID = 5577019952587334306L;
 	private final NapiWindow thisReference = this;
 
-	private final int HEIGHT = 220;
-	private final int WIDTH = 500;
 
 	private final JTextField filePathTextField = new JTextField();
 	private final JButton openFileButton = new JButton("Select Movie File");
 	private final JPanel mainPanel = new JPanel(new BorderLayout());
 	private final JPanel fileSelectionPanel = new JPanel(new FlowLayout(
 			FlowLayout.CENTER));
-	private final JPanel northPanel = new JPanel(new BorderLayout());
+	private final JPanel northPanel = new JPanel(new GridLayout(3, 1));
 	private final JButton startButton = new JButton("Fetch data");
 	private final JButton saveButton = new JButton("Save subtitles");
 	private final JCheckBox saveCoverCheckBox = new JCheckBox("Save cover");
@@ -68,8 +66,9 @@ public class NapiWindow extends JFrame {
 	private final JLabel charsetLabel = new JLabel("Charset:");
 	private final JComboBox langComboBox = new JComboBox(new String[] {
 			"Polish", "English" });
-	private final NapiprojektMovieInfoPanel napiprojektInfoPanel = NapiprojektMovieInfoPanel
-			.getInstance();
+	private final JCheckBox napiprojektCheckBox = new JCheckBox("Napiprojekt");
+	private final JCheckBox opensubtitlesCheckBox = new JCheckBox("OpenSubtitles.org");
+	private final ResultsPanel resultsPanel = new ResultsPanel();
 
 	private final NapiResult[] napiResult = new NapiResult[1];
 	private final MediaInfo mediaInfo = new MediaInfo();
@@ -89,10 +88,7 @@ public class NapiWindow extends JFrame {
 		setTitle("JNapi v0.1");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		add(mainPanel, BorderLayout.CENTER);
-		add(napiprojektInfoPanel, BorderLayout.SOUTH);
-		napiprojektInfoPanel.setEnabled(false);
-		setPreferredSize(new Dimension(WIDTH, HEIGHT
-				+ napiprojektInfoPanel.getHeight()));
+		add(resultsPanel, BorderLayout.SOUTH);
 
 		try {
 			Image icon = ImageIO.read(getClass().getClassLoader()
@@ -109,14 +105,6 @@ public class NapiWindow extends JFrame {
 		filePathTextField.setPreferredSize(new Dimension(250, 25));
 		filePathTextField.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
 		filePathTextField.setEditable(false);
-		filePathTextField.addCaretListener(new CaretListener() {
-			@Override
-			public void caretUpdate(CaretEvent arg0) {
-				boolean enabled = filePathTextField.getText().length() > 0;
-				startButton.setEnabled(enabled);
-				langComboBox.setEnabled(enabled);
-			}
-		});
 		openFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -142,16 +130,30 @@ public class NapiWindow extends JFrame {
 				}
 
 				setOptionsEnabled(false);
-				napiprojektInfoPanel.setContent(null);
 			}
 		});
 
 		fileSelectionPanel.add(new Label("File path:"));
 		fileSelectionPanel.add(filePathTextField);
 		fileSelectionPanel.add(openFileButton);
-		northPanel.add(fileSelectionPanel, BorderLayout.NORTH);
+		northPanel.add(fileSelectionPanel);
+		
+		JPanel servicePanel = new JPanel(new GridLayout(1, 2));
+		JPanel napiprojektCheckBoxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JPanel opensubtitlesCheckBoxPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		northPanel.add(servicePanel);
+		servicePanel.add(napiprojektCheckBoxPanel);
+		servicePanel.add(opensubtitlesCheckBoxPanel);
+		napiprojektCheckBoxPanel.add(napiprojektCheckBox);
+		opensubtitlesCheckBoxPanel.add(opensubtitlesCheckBox);
+		napiprojektCheckBox.setSelected(true);
+		opensubtitlesCheckBox.setSelected(true);
+		napiprojektCheckBox.setEnabled(false);
+		opensubtitlesCheckBox.setEnabled(false);
+		
+		
 		JPanel fetchPanel = new JPanel(new GridLayout(1, 2));
-		northPanel.add(fetchPanel, BorderLayout.SOUTH);
+		northPanel.add(fetchPanel);
 
 		startButton.setEnabled(false);
 		langComboBox.setEnabled(false);
@@ -160,7 +162,6 @@ public class NapiWindow extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					setOptionsEnabled(false);
-					napiprojektInfoPanel.setContent(null);
 
 					Lang lang = langComboBox.getSelectedItem().toString()
 							.equals("English") ? Lang.ENG : Lang.PL;
@@ -181,10 +182,11 @@ public class NapiWindow extends JFrame {
 
 					setOptionsEnabled(true);
 
-					if (!napiResult[0].isCoverStatus())
-						return;
+					if (napiResult[0].isCoverStatus()) {
+						resultsPanel.addResult(napiResult[0]);
+						pack();
+					}
 
-					napiprojektInfoPanel.setContent(napiResult[0]);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 					JOptionPane.showMessageDialog(thisReference,
@@ -197,9 +199,23 @@ public class NapiWindow extends JFrame {
 		JPanel langPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		fetchPanel.add(langPanel);
 		fetchPanel.add(startButtonPanel);
-		langPanel.add(new JLabel("Language:"));
+		final JLabel langLabel = new JLabel("Language:");
+		langLabel.setEnabled(false);
+		langPanel.add(langLabel);
 		langPanel.add(langComboBox);
 		startButtonPanel.add(startButton);
+		
+		filePathTextField.addCaretListener(new CaretListener() {
+			@Override
+			public void caretUpdate(CaretEvent arg0) {
+				boolean enabled = filePathTextField.getText().length() > 0;
+				startButton.setEnabled(enabled);
+				langComboBox.setEnabled(enabled);
+				napiprojektCheckBox.setEnabled(enabled);
+				opensubtitlesCheckBox.setEnabled(enabled);
+				langLabel.setEnabled(enabled);
+			}
+		});
 	}
 
 	private void initializeOptionsPanel() {

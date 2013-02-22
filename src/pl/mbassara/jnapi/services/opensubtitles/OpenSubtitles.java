@@ -1,8 +1,10 @@
 package pl.mbassara.jnapi.services.opensubtitles;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -10,6 +12,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Lang;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.ArrayValue;
@@ -68,6 +71,14 @@ public class OpenSubtitles {
 		return handler.getResult();
 	}
 
+	public static String logIn() {
+		ResponseStruct response = logIn("", "", "en", "Subget");
+		if (isResponseOK(response))
+			return response.getFieldsForName("token").get(0).getValue();
+		else
+			return null;
+	}
+
 	public static ResponseStruct logIn(String username, String password,
 			String language, String useragent) {
 
@@ -76,12 +87,13 @@ public class OpenSubtitles {
 				new SingleValue(useragent) });
 	}
 
-	public static ResponseStruct logOut(String token) {
-		return callMethod("LogOut", new Value[] { new SingleValue(token) });
+	public static boolean logOut(String token) {
+		return isResponseOK(callMethod("LogOut", new Value[] { new SingleValue(
+				token) }));
 	}
 
 	public static ResponseStruct searchSubtitles(String token, Lang lang,
-			String movieHash, int fileSize) {
+			String movieHash, long fileSize) {
 		String l = lang == Lang.PL ? "pol" : "eng";
 		return callMethod("SearchSubtitles", new Value[] {
 				new SingleValue(token),
@@ -90,6 +102,18 @@ public class OpenSubtitles {
 						new Member("moviehash", new SingleValue(movieHash)),
 						new Member("moviebytesize", new SingleValue("double",
 								fileSize + "")) }) }) });
+	}
+
+	public static ResponseStruct searchSubtitles(String token, File movieFile) {
+		try {
+			String movieHash = OpenSubtitlesHasher.computeHash(movieFile);
+			long fileSize = movieFile.length();
+
+			return searchSubtitles(token, Lang.PL, movieHash, fileSize);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static ResponseStruct downloadSubtitles(String token,
@@ -101,11 +125,35 @@ public class OpenSubtitles {
 								idSubtitleFile) }) });
 	}
 
+	public static String downloadSubtitles(String token, File movieFile) {
+		ResponseStruct response = searchSubtitles(token, movieFile);
+		if (!isResponseOK(response))
+			return null;
+
+		String idSubtitleFile = response.getFieldsForName("IDSubtitleFile")
+				.get(0).getValue();
+		response = downloadSubtitles(token, idSubtitleFile);
+		if (!isResponseOK(response))
+			return null;
+
+		return FileHelper.ungzipData(FileHelper.base64ToByteArray(response
+				.getFieldsForName("data").get(0).getValue()));
+	}
+
+	private static boolean isResponseOK(ResponseStruct response) {
+		if (response == null)
+			return false;
+		ArrayList<ResponseField> fields = response.getFieldsForName("status");
+		if (fields.size() == 0)
+			return false;
+
+		return fields.get(0).getValue().equals("200 OK");
+	}
+
 	public static void main(String[] args) {
+		// System.out.println(logIn());
 
-		// System.out.println(logIn("mbassara", "thorongil", "en", "Subget"));
-
-		// System.out.println(logOut("amd30taehsj8ggc6sqnqvpp4f3"));
+		// System.out.println(logOut("5ev5qrbi743aug37oskpphsbi3"));
 
 		// ResponseStruct result = searchSubtitles("5jm0j0gic050v6t15mgqacbkl6",
 		// Lang.PL, "7d9cd5def91c9432", 735934464);
@@ -114,15 +162,22 @@ public class OpenSubtitles {
 		// System.out.println(field);
 
 		// ResponseStruct response = downloadSubtitles(
-		// "amd30taehsj8ggc6sqnqvpp4f3", "1951948416");
-		// System.out.println(FileHelper.decodeBase64TextData(response
-		// .getFieldsForName("data").get(0).getValue()));
+		// "gt4uf2kh0s2j9qeljvh1nt4jo6", "1951948416");
+		// System.out.println(FileHelper.ungzipData(FileHelper
+		// .base64ToByteArray(response.getFieldsForName("data").get(0)
+		// .getValue())));
 		// FileHelper.saveBase64File(new File("out.gzip"), response
 		// .getFieldsForName("data").get(0).getValue());
 		// FileHelper.saveBase64UngzippedFile(new File("out.txt"), response
 		// .getFieldsForName("data").get(0).getValue());
 
-		System.out.println("\"" + "7za.exe\" x -y -so -piBlm8NTigvru0Jr0 \""
-				+ "File" + ".7z\" > \"" + "File" + "\"");
+		System.out
+				.println(downloadSubtitles(
+						"gt4uf2kh0s2j9qeljvh1nt4jo6",
+						new File(
+								"F:\\Maciek\\Videos\\Conspiracy (2001)\\Conspiracy.avi")));
+
+		// System.out.println("\"" + "7za.exe\" x -y -so -piBlm8NTigvru0Jr0 \""
+		// + "File" + ".7z\" > \"" + "File" + "\"");
 	}
 }

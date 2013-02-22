@@ -68,7 +68,7 @@ public class OpenSubtitlesXMLHandler extends DefaultHandler {
 			if (isName)
 				currentField.setName(chars);
 			if (isValue)
-				currentField.setValue(chars);
+				currentField.concatValue(chars);
 		}
 
 	}
