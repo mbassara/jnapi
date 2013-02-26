@@ -1,11 +1,11 @@
 package pl.mbassara.jnapi.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -27,11 +26,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 
 import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.mediainfo.MediaInfo;
 import pl.mbassara.jnapi.model.Subtitles.Format;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
 import pl.mbassara.jnapi.services.Lang;
@@ -49,23 +45,21 @@ public class NapiWindow extends JFrame {
 	private final JPanel mainPane = new JPanel(new BorderLayout());
 	private final JPanel fileSelectionPane = new JPanel(new FlowLayout(
 			FlowLayout.CENTER));
-	private final JPanel northPane = new JPanel(new GridLayout(3, 1));
-	private final JButton startButton = new JButton("Fetch data");
+	private final JPanel northPane = new JPanel(new GridLayout(2, 1));
 	private final JComboBox charsetComboBox = new JComboBox(new String[] {
 			"windows-1250", "ISO-8859-2", "UTF-8" });
 	private final JComboBox formatComboBox = new JComboBox(new String[] {
 			"MicroDVD", "SubRip", "MPL2", "TMPlayer" });
 	private final JLabel formatLabel = new JLabel("Format:");
 	private final JLabel charsetLabel = new JLabel("Charset:");
+	private final JLabel langLabel = new JLabel("Language:");
 	private final JComboBox langComboBox = new JComboBox(new String[] {
 			"Polish", "English" });
 	private final JCheckBox napiprojektCheckBox = new JCheckBox("Napiprojekt");
 	private final JCheckBox opensubtitlesCheckBox = new JCheckBox(
 			"OpenSubtitles.org");
 	private final JScrollPane southPane = new JScrollPane();
-	private final ResultsTable resultsTable = new ResultsTable();
-
-	private final MediaInfo mediaInfo = new MediaInfo();
+	private final ResultsTable resultsTable = new ResultsTable(this);
 
 	public NapiWindow() {
 		initialize();
@@ -81,15 +75,10 @@ public class NapiWindow extends JFrame {
 		((JPanel) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
 		setTitle("JNapi v0.1");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setLocationByPlatform(true);
 		add(mainPane, BorderLayout.CENTER);
 
-		try {
-			Image icon = ImageIO.read(getClass().getClassLoader()
-					.getResourceAsStream("icon.png"));
-			setIconImage(icon);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setIconImage(Global.getInstance().getIcon());
 	}
 
 	private void initializeNorthPane() {
@@ -101,30 +90,92 @@ public class NapiWindow extends JFrame {
 		openFileButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+
 				JFileChooser chooser = new JFileChooser(Global.getInstance()
 						.getLastUsedDirectory());
 				chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 				chooser.setApproveButtonText("Select");
 				chooser.setDialogTitle("Open video file");
 				chooser.setFileFilter(new MediaFileFilter());
-				int result = chooser.showOpenDialog(thisReference);
+				int option = chooser.showOpenDialog(thisReference);
 
-				if (result != JFileChooser.APPROVE_OPTION)
+				if (option != JFileChooser.APPROVE_OPTION)
 					return;
 
 				Global.getInstance().setLastUsedDirectory(
 						chooser.getSelectedFile().getParentFile());
 
-				try {
-					mediaInfo.open(chooser.getSelectedFile());
-					filePathTextField.setText(chooser.getSelectedFile()
-							.getCanonicalPath());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				setOptionsEnabled(true);
 				resultsTable.clear();
+
+				final Lang lang = Global.getInstance().getLang();
+
+				final File selectedFile = chooser.getSelectedFile();
+
+				setAllEnabled(false);
+				thisReference.setCursor(Cursor
+						.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							boolean subtitlesFound = false;
+							ISubtitlesProvider subtitlesProvider;
+							if (napiprojektCheckBox.isSelected()) {
+								subtitlesProvider = new Napiprojekt();
+								for (SubtitlesResult result : subtitlesProvider
+										.downloadSubtitles(selectedFile, lang)) {
+									resultsTable.addResult(result);
+									subtitlesFound = true;
+								}
+							}
+							if (opensubtitlesCheckBox.isSelected()) {
+								subtitlesProvider = new OpenSubtitles();
+								for (SubtitlesResult result : subtitlesProvider
+										.downloadSubtitles(selectedFile, lang)) {
+									resultsTable.addResult(result);
+									subtitlesFound = true;
+								}
+							}
+
+							if (subtitlesFound) {
+								filePathTextField.setText(selectedFile
+										.getCanonicalPath());
+
+								Global.getInstance().setSelectedMovieFilePath(
+										filePathTextField.getText());
+								setAllEnabled(true);
+							} else {
+								JOptionPane
+										.showMessageDialog(
+												thisReference,
+												"Can't find subtitles for this file in neither of selected databases.",
+												"No results",
+												JOptionPane.WARNING_MESSAGE);
+								setAllEnabled(true);
+								setOptionsEnabled(false);
+							}
+
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+							JOptionPane
+									.showMessageDialog(
+											thisReference,
+											"File with given path doesn't exists!",
+											"File not found",
+											JOptionPane.ERROR_MESSAGE);
+							setAllEnabled(true);
+							setOptionsEnabled(false);
+						} catch (IOException e) {
+							e.printStackTrace();
+							setAllEnabled(true);
+							setOptionsEnabled(false);
+						} finally {
+							thisReference.setCursor(Cursor
+									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+						}
+					}
+				}).start();
 			}
 		});
 
@@ -138,89 +189,20 @@ public class NapiWindow extends JFrame {
 				FlowLayout.CENTER));
 		JPanel opensubtitlesCheckBoxPane = new JPanel(new FlowLayout(
 				FlowLayout.CENTER));
+
 		northPane.add(servicePane);
 		servicePane.add(napiprojektCheckBoxPane);
 		servicePane.add(opensubtitlesCheckBoxPane);
 		napiprojektCheckBoxPane.add(napiprojektCheckBox);
 		opensubtitlesCheckBoxPane.add(opensubtitlesCheckBox);
+
 		napiprojektCheckBox.setSelected(true);
 		opensubtitlesCheckBox.setSelected(true);
-		napiprojektCheckBox.setEnabled(false);
-		opensubtitlesCheckBox.setEnabled(false);
 
-		JPanel fetchPane = new JPanel(new GridLayout(1, 2));
-		northPane.add(fetchPane);
-
-		startButton.setEnabled(false);
-		langComboBox.setEnabled(false);
-		startButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				try {
-					resultsTable.clear();
-
-					Lang lang = Global.getInstance().getLang();
-
-					File selectedFile = new File(filePathTextField.getText());
-
-					ISubtitlesProvider subtitlesProvider;
-					if (napiprojektCheckBox.isSelected()) {
-						subtitlesProvider = new Napiprojekt();
-						for (SubtitlesResult result : subtitlesProvider
-								.downloadSubtitles(selectedFile, lang))
-							resultsTable.addResult(result);
-					}
-					if (opensubtitlesCheckBox.isSelected()) {
-						subtitlesProvider = new OpenSubtitles();
-						for (SubtitlesResult result : subtitlesProvider
-								.downloadSubtitles(selectedFile, lang))
-							resultsTable.addResult(result);
-					}
-
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-					JOptionPane.showMessageDialog(thisReference,
-							"File with given path doesn't exists!",
-							"File not found", JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
-		JPanel startButtonPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		JPanel langPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		fetchPane.add(langPane);
-		fetchPane.add(startButtonPane);
-		final JLabel langLabel = new JLabel("Language:");
-		langLabel.setEnabled(false);
-		langPane.add(langLabel);
-		langPane.add(langComboBox);
-		langComboBox.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				Global.getInstance().setLang(
-						Lang.getValueOf(langComboBox.getSelectedItem()
-								.toString()));
-			}
-		});
-		startButtonPane.add(startButton);
-
-		filePathTextField.addCaretListener(new CaretListener() {
-			@Override
-			public void caretUpdate(CaretEvent arg0) {
-				boolean enabled = filePathTextField.getText().length() > 0;
-				startButton.setEnabled(enabled);
-				langComboBox.setEnabled(enabled);
-				napiprojektCheckBox.setEnabled(enabled);
-				opensubtitlesCheckBox.setEnabled(enabled);
-				langLabel.setEnabled(enabled);
-
-				Global.getInstance().setSelectedMovieFilePath(
-						filePathTextField.getText());
-			}
-		});
 	}
 
 	private void initializeOptionsPane() {
-		JPanel optionsPane = new JPanel(new GridLayout(1, 2, 20, 0));
+		JPanel optionsPane = new JPanel(new GridLayout(1, 3, 20, 0));
 		mainPane.add(optionsPane, BorderLayout.CENTER);
 		setOptionsEnabled(false);
 
@@ -250,6 +232,19 @@ public class NapiWindow extends JFrame {
 			}
 		});
 
+		JPanel langPane = new JPanel(new GridLayout(2, 1));
+		optionsPane.add(langPane);
+		langPane.add(langLabel);
+		langPane.add(langComboBox);
+		langComboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				Global.getInstance().setLang(
+						Lang.getValueOf(langComboBox.getSelectedItem()
+								.toString()));
+			}
+		});
+
 	}
 
 	private void initializeSouthPane() {
@@ -265,6 +260,15 @@ public class NapiWindow extends JFrame {
 		charsetLabel.setEnabled(enabled);
 		charsetComboBox.setEnabled(enabled);
 		formatComboBox.setEnabled(enabled);
+	}
+
+	private void setAllEnabled(boolean enabled) {
+		setOptionsEnabled(enabled);
+		langLabel.setEnabled(enabled);
+		langComboBox.setEnabled(enabled);
+		openFileButton.setEnabled(enabled);
+		napiprojektCheckBox.setEnabled(enabled);
+		opensubtitlesCheckBox.setEnabled(enabled);
 	}
 
 	public static void main(String[] args) {
