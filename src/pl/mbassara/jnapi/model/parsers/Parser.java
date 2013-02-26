@@ -6,13 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import pl.mbassara.jnapi.model.Subtitles;
 
 public abstract class Parser {
 
 	public Subtitles parse(byte[] data, String charset, double fps)
-			throws WrongSubtitlesFormatException {
+			throws UnsupportedSubtitlesFormatException {
 		ByteArrayInputStream inputStream = null;
 		try {
 			inputStream = new ByteArrayInputStream(data);
@@ -27,8 +28,18 @@ public abstract class Parser {
 
 	}
 
+	public Subtitles parse(String subtitles, double fps)
+			throws UnsupportedSubtitlesFormatException {
+		try {
+			return parse(subtitles.getBytes("UTF-8"), "UTF-8", fps);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public Subtitles parse(File file, String charset, double fps)
-			throws WrongSubtitlesFormatException {
+			throws UnsupportedSubtitlesFormatException {
 		FileInputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(file);
@@ -47,5 +58,5 @@ public abstract class Parser {
 	}
 
 	protected abstract Subtitles parse(InputStream inputStream, String charset,
-			double fps) throws WrongSubtitlesFormatException;
+			double fps) throws UnsupportedSubtitlesFormatException;
 }

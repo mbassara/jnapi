@@ -14,7 +14,7 @@ public class MicroDVDParser extends Parser {
 
 	@Override
 	public Subtitles parse(InputStream inputStream, String charset, double fps)
-			throws WrongSubtitlesFormatException {
+			throws UnsupportedSubtitlesFormatException {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(inputStream,
@@ -27,7 +27,7 @@ public class MicroDVDParser extends Parser {
 					continue;
 
 				if (!line.matches("\\{\\d*\\}\\{\\d*\\}.*"))
-					throw new WrongSubtitlesFormatException(line);
+					throw new UnsupportedSubtitlesFormatException(line);
 
 				ArrayList<String> lines = new ArrayList<String>();
 

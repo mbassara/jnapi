@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * 
  */
 public class Subtitles {
-	public enum TYPE {
+	public enum Format {
 		MicroDVD, MPL2, SubRip, TMPlayer
 	}
 
@@ -57,11 +57,11 @@ public class Subtitles {
 		subtitles.add(subtitle);
 	}
 
-	public boolean save(String type, File file, String charset) {
-		return save(TYPE.valueOf(type), file, charset);
+	public boolean save(String format, File file, String charset) {
+		return save(Format.valueOf(format), file, charset);
 	}
 
-	public boolean save(TYPE type, File file, String charset) {
+	public boolean save(Format format, File file, String charset) {
 		BufferedWriter writer = null;
 		try {
 			writer = new BufferedWriter(new OutputStreamWriter(
@@ -69,7 +69,7 @@ public class Subtitles {
 
 			int i = 1;
 			for (Subtitle subtitle : subtitles) {
-				writer.write(subtitle.toString(type, i++, fps));
+				writer.write(subtitle.toString(format, i++, fps));
 				writer.newLine();
 			}
 

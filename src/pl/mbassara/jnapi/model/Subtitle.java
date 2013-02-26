@@ -87,7 +87,7 @@ public class Subtitle {
 		return lines;
 	}
 
-	public String toString(Subtitles.TYPE type, int i, double fps) {
+	public String toString(Subtitles.Format type, int i, double fps) {
 		switch (type) {
 		case MicroDVD:
 			return toMicroDVD(fps);
