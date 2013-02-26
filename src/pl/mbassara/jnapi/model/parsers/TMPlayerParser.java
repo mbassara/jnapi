@@ -14,7 +14,7 @@ public class TMPlayerParser extends Parser {
 
 	@Override
 	protected Subtitles parse(InputStream inputStream, String charset,
-			double fps) throws WrongSubtitlesFormatException {
+			double fps) throws UnsupportedSubtitlesFormatException {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(inputStream,
@@ -25,7 +25,7 @@ public class TMPlayerParser extends Parser {
 				line = reader.readLine();
 
 			if (!line.matches("\\d\\d:\\d\\d:\\d\\d:.+"))
-				throw new WrongSubtitlesFormatException(line);
+				throw new UnsupportedSubtitlesFormatException(line);
 
 			while ((nextLine = reader.readLine()) != null || line != null) {
 				if (nextLine != null
@@ -34,7 +34,7 @@ public class TMPlayerParser extends Parser {
 
 				if (nextLine != null
 						&& !nextLine.matches("\\d\\d:\\d\\d:\\d\\d:.+"))
-					throw new WrongSubtitlesFormatException(nextLine);
+					throw new UnsupportedSubtitlesFormatException(nextLine);
 
 				ArrayList<String> lines = new ArrayList<String>();
 

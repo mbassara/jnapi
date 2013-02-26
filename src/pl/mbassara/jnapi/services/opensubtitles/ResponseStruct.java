@@ -37,6 +37,16 @@ public class ResponseStruct implements IResponsePart {
 		parts.add(part);
 	}
 
+	public ArrayList<ResponseStruct> getSubResponseStructs() {
+		ArrayList<ResponseStruct> result = new ArrayList<ResponseStruct>();
+
+		for (IResponsePart part : parts)
+			if (part instanceof ResponseStruct)
+				result.add((ResponseStruct) part);
+
+		return result;
+	}
+
 	@Override
 	public boolean hasName(String name) {
 		return this.name.equals(name) || getFieldsForName(name).size() > 0;

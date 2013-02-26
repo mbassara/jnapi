@@ -36,7 +36,7 @@ public class SubRipParser extends Parser {
 	}
 
 	protected Subtitles parse(InputStream inputStream, String charset,
-			double fps) throws WrongSubtitlesFormatException {
+			double fps) throws UnsupportedSubtitlesFormatException {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new InputStreamReader(inputStream,
@@ -47,18 +47,15 @@ public class SubRipParser extends Parser {
 
 			while ((line = reader.readLine()) != null) {
 				if (state == STATE.LINE_NO) {
-					if (line.equals("") || line.matches("\\s*"))
-						continue;
-
 					if (!line.matches("\\d+"))
-						throw new WrongSubtitlesFormatException(line);
+						continue;
 
 					tmpSubtitle = new Subtitle();
 					nextState();
 				} else if (state == STATE.TIMES) {
 					if (!line
 							.matches("\\d\\d:\\d\\d:\\d\\d,\\d\\d\\d --> \\d\\d:\\d\\d:\\d\\d,\\d\\d\\d"))
-						throw new WrongSubtitlesFormatException(line);
+						throw new UnsupportedSubtitlesFormatException(line);
 
 					int timeFrom = Integer.parseInt(line.substring(9, 12));
 					timeFrom += Integer.parseInt(line.substring(6, 8)) * 1000;
@@ -84,7 +81,16 @@ public class SubRipParser extends Parser {
 				}
 				prevLine = line;
 			}
-			if (!prevLine.equals("") && !prevLine.matches("\\s*"))
+
+			if (state != STATE.CONTENT)
+				throw new UnsupportedSubtitlesFormatException(prevLine);
+
+			if (!prevLine.equals("") && !prevLine.matches("\\s*")) // if there
+																	// was no
+																	// empty
+																	// line at
+																	// the end
+																	// of file
 				subtitles.addSubtitle(tmpSubtitle);
 
 			return subtitles;

@@ -19,9 +19,9 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import pl.mbassara.jnapi.services.FileHelper;
+import pl.mbassara.jnapi.services.Lang;
 import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
-import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Lang;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Mode;
 
 public class NapiprojektMovieInfoPanel extends JPanel {
@@ -55,6 +55,7 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 		coverPanel = new ImagePanel();
 
 		setSize(WIDTH, HEIGHT);
+		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		leftInfoPanel.setPreferredSize(new Dimension(120, HEIGHT));
 		rightInfoPanel.setPreferredSize(new Dimension(200, HEIGHT));
 

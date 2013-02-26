@@ -125,7 +125,7 @@ public abstract class FileHelper {
 		return null;
 	}
 
-	public static String ungzipData(byte[] data) {
+	public static String ungzipData(byte[] data, String charset) {
 
 		char[] buff = new char[1024];
 
@@ -133,7 +133,7 @@ public abstract class FileHelper {
 
 			InputStreamReader input = new InputStreamReader(
 					new GZIPInputStream(new ByteArrayInputStream(data)),
-					"windows-1250");
+					charset);
 
 			StringBuilder out = new StringBuilder();
 
@@ -168,7 +168,7 @@ public abstract class FileHelper {
 			OutputStreamWriter out = new OutputStreamWriter(
 					new FileOutputStream(file), charsetName);
 
-			out.write(ungzipData(base64ToByteArray(base64Data)));
+			out.write(ungzipData(base64ToByteArray(base64Data), charsetName));
 			out.flush();
 
 			out.close();

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -14,6 +15,9 @@ import org.xml.sax.SAXException;
 
 import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
+import pl.mbassara.jnapi.services.ISubtitlesProvider;
+import pl.mbassara.jnapi.services.Lang;
+import pl.mbassara.jnapi.services.SubtitlesResult;
 
 /**
  * This class allows requesting napiprojekt data base for subtitles to given
@@ -22,14 +26,10 @@ import pl.mbassara.jnapi.services.HTTPHelper;
  * @author maciek
  * 
  */
-public abstract class Napiprojekt {
+public class Napiprojekt implements ISubtitlesProvider {
 
 	public enum Mode {
 		SUBS, COVER, SUBS_COVER
-	}
-
-	public enum Lang {
-		PL, ENG
 	}
 
 	private static final String napiUrl = "http://www.napiprojekt.pl/api/api-napiprojekt3.php";
@@ -79,4 +79,51 @@ public abstract class Napiprojekt {
 		return handler.getResult();
 	}
 
+	@Override
+	public ArrayList<SubtitlesResult> downloadSubtitles(final File movieFile,
+			Lang lang) throws FileNotFoundException {
+		final NapiResult result = Napiprojekt.request(movieFile,
+				Mode.SUBS_COVER, lang);
+
+		ArrayList<SubtitlesResult> list = new ArrayList<SubtitlesResult>();
+		list.add(new SubtitlesResult() {
+
+			@Override
+			public String getProviderName() {
+				return "Napiprojekt";
+			}
+
+			@Override
+			public String getMovieReleaseName() {
+				return result.getTitle();
+			}
+
+			@Override
+			public String getMovieName() {
+				return result.getTitle();
+			}
+
+			@Override
+			public boolean isFound() {
+				return result.isStatus();
+			}
+
+			@Override
+			public String getSubtitlesAsString() {
+				return FileHelper.decodeBase64TextData(result.getSubsAsciiBin());
+			}
+
+			@Override
+			protected File getMovieFile() {
+				return movieFile;
+			}
+
+			@Override
+			public Object getRawResult() {
+				return result;
+			}
+		});
+
+		return list;
+	}
 }

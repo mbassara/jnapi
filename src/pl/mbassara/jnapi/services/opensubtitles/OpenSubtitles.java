@@ -2,26 +2,32 @@ package pl.mbassara.jnapi.services.opensubtitles;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
+import pl.mbassara.jnapi.gui.MediaFileFilter;
+import pl.mbassara.jnapi.gui.SubtitlesCharset;
 import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
-import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Lang;
+import pl.mbassara.jnapi.services.ISubtitlesProvider;
+import pl.mbassara.jnapi.services.Lang;
+import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.ArrayValue;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.Member;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.SingleValue;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.StructValue;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.Value;
 
-public class OpenSubtitles {
+public class OpenSubtitles implements ISubtitlesProvider {
 
 	static {
 		SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -52,10 +58,7 @@ public class OpenSubtitles {
 
 		request += "</methodCall>";
 
-		System.out.println(request);
-
 		String response = HTTPHelper.sendOpenSubtitlesRequest(URL, request);
-
 		OpenSubtitlesXMLHandler handler = new OpenSubtitlesXMLHandler();
 		try {
 			parser.parse(new ByteArrayInputStream(response.getBytes("UTF-8")),
@@ -72,7 +75,7 @@ public class OpenSubtitles {
 	}
 
 	public static String logIn() {
-		ResponseStruct response = logIn("", "", "en", "Subget");
+		ResponseStruct response = logIn("", "", "en", "JNapi v0.1");
 		if (isResponseOK(response))
 			return response.getFieldsForName("token").get(0).getValue();
 		else
@@ -104,12 +107,13 @@ public class OpenSubtitles {
 								fileSize + "")) }) }) });
 	}
 
-	public static ResponseStruct searchSubtitles(String token, File movieFile) {
+	public static ResponseStruct searchSubtitles(String token, File movieFile,
+			Lang lang) {
 		try {
 			String movieHash = OpenSubtitlesHasher.computeHash(movieFile);
 			long fileSize = movieFile.length();
 
-			return searchSubtitles(token, Lang.PL, movieHash, fileSize);
+			return searchSubtitles(token, lang, movieHash, fileSize);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -125,8 +129,9 @@ public class OpenSubtitles {
 								idSubtitleFile) }) });
 	}
 
-	public static String downloadSubtitles(String token, File movieFile) {
-		ResponseStruct response = searchSubtitles(token, movieFile);
+	public static ResponseStruct downloadSubtitles(String token,
+			File movieFile, Lang lang) {
+		ResponseStruct response = searchSubtitles(token, movieFile, lang);
 		if (!isResponseOK(response))
 			return null;
 
@@ -136,8 +141,7 @@ public class OpenSubtitles {
 		if (!isResponseOK(response))
 			return null;
 
-		return FileHelper.ungzipData(FileHelper.base64ToByteArray(response
-				.getFieldsForName("data").get(0).getValue()));
+		return response;
 	}
 
 	private static boolean isResponseOK(ResponseStruct response) {
@@ -150,8 +154,88 @@ public class OpenSubtitles {
 		return fields.get(0).getValue().equals("200 OK");
 	}
 
+	@Override
+	public ArrayList<SubtitlesResult> downloadSubtitles(final File movieFile,
+			Lang lang) throws FileNotFoundException {
+		String token = logIn();
+		ResponseStruct response = OpenSubtitles.searchSubtitles(token,
+				movieFile, lang);
+		logOut(token);
+
+		if (!isResponseOK(response))
+			return null;
+
+		ArrayList<SubtitlesResult> list = new ArrayList<SubtitlesResult>();
+
+		for (final ResponseStruct struct : response.getSubResponseStructs()) {
+			list.add(new SubtitlesResult() {
+
+				private String idSubtitleFile = struct
+						.getFieldsForName("IDSubtitleFile").get(0).getValue();
+				private String subtitlesString = null;
+
+				@Override
+				public boolean isFound() {
+					return true;
+				}
+
+				@Override
+				public String getSubtitlesAsString() {
+					if (subtitlesString != null)
+						return subtitlesString;
+
+					String token = logIn();
+					ResponseStruct responseStruct = downloadSubtitles(token,
+							idSubtitleFile);
+					logOut(token);
+
+					if (!isResponseOK(responseStruct))
+						return null;
+
+					subtitlesString = FileHelper.ungzipData(
+							FileHelper
+									.base64ToByteArray(responseStruct
+											.getFieldsForName("data").get(0)
+											.getValue()), SubtitlesCharset.UTF8
+									.toString());
+
+					return subtitlesString;
+				}
+
+				@Override
+				public String getProviderName() {
+					return "Opensubtitles.org";
+				}
+
+				@Override
+				public String getMovieReleaseName() {
+					return struct.getFieldsForName("MovieReleaseName").get(0)
+							.getValue();
+				}
+
+				@Override
+				public String getMovieName() {
+					return struct.getFieldsForName("MovieName").get(0)
+							.getValue();
+				}
+
+				@Override
+				protected File getMovieFile() {
+					return movieFile;
+				}
+
+				@Override
+				public Object getRawResult() {
+					return struct;
+				}
+
+			});
+		}
+
+		return list;
+	}
+
 	public static void main(String[] args) {
-		// System.out.println(logIn());
 
 		// System.out.println(logOut("5ev5qrbi743aug37oskpphsbi3"));
 
@@ -171,11 +255,18 @@ public class OpenSubtitles {
 		// FileHelper.saveBase64UngzippedFile(new File("out.txt"), response
 		// .getFieldsForName("data").get(0).getValue());
 
-		System.out
-				.println(downloadSubtitles(
-						"gt4uf2kh0s2j9qeljvh1nt4jo6",
-						new File(
-								"F:\\Maciek\\Videos\\Conspiracy (2001)\\Conspiracy.avi")));
+		JFileChooser chooser = new JFileChooser();
+		chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+		chooser.setFileFilter(new MediaFileFilter());
+		int result = chooser.showOpenDialog(null);
+
+		if (result != JFileChooser.APPROVE_OPTION)
+			return;
+
+		System.out.println(searchSubtitles(logIn(), chooser.getSelectedFile()
+		/*
+		 * new File( "F:\\Maciek\\Videos\\Conspiracy (2001)\\Conspiracy.avi")
+		 */, Lang.PL));
 
 		// System.out.println("\"" + "7za.exe\" x -y -so -piBlm8NTigvru0Jr0 \""
 		// + "File" + ".7z\" > \"" + "File" + "\"");
