@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
@@ -19,14 +20,19 @@ import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
+import pl.mbassara.jnapi.services.napiprojekt.NapiprojektMovieInfoPanel;
+import pl.mbassara.jnapi.services.opensubtitles.OpensubtitlesMovieInfoPanel;
+import pl.mbassara.jnapi.services.opensubtitles.ResponseStruct;
 
 public class ResultsTableMouseAdapter extends MouseAdapter {
 
 	private final ResultsTable table;
 	private final int[] selectedRowIndex = new int[1];
+	private final JFrame parentFrame;
 
-	public ResultsTableMouseAdapter(ResultsTable table) {
+	public ResultsTableMouseAdapter(JFrame parentFrame, ResultsTable table) {
 		this.table = table;
+		this.parentFrame = parentFrame;
 	}
 
 	@Override
@@ -58,7 +64,17 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 			menu.add(item);
 
 			menu.show(e.getComponent(), e.getX(), e.getY());
+		} else if (e.getClickCount() == 2) {
+			saveSubtitles();
 		}
+	}
+
+	private void saveSubtitles() {
+		String proposedPath = Global.getInstance().getSelectedMovieFilePath();
+		proposedPath = proposedPath.substring(0, proposedPath.lastIndexOf("."))
+				+ ".txt";
+
+		saveSubtitlesAs(proposedPath);
 	}
 
 	private void saveSubtitlesAs(String destinationFilePath) {
@@ -100,13 +116,7 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 	private ActionListener saveaActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String proposedPath = Global.getInstance()
-					.getSelectedMovieFilePath();
-			proposedPath = proposedPath.substring(0,
-					proposedPath.lastIndexOf("."))
-					+ ".txt";
-
-			saveSubtitlesAs(proposedPath);
+			saveSubtitles();
 		}
 	};
 
@@ -144,19 +154,31 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 			final Object rawResult = ((ResultsTableModel) table.getModel())
 					.getResultAt(selectedRowIndex[0]).getRawResult();
 
-			if (rawResult instanceof NapiResult) {
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						JFrame frame = new JFrame("Napiprojekt movie info");
-						frame.setContentPane(NapiprojektMovieInfoPanel
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					JDialog dialog = null;
+					if (rawResult instanceof NapiResult) {
+						dialog = new JDialog(parentFrame,
+								"Napiprojekt movie info", true);
+						dialog.setContentPane(NapiprojektMovieInfoPanel
 								.getInstance((NapiResult) rawResult));
-						frame.setSize(500, 300);
-						frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-						frame.setVisible(true);
 					}
-				});
-			}
+					if (rawResult instanceof ResponseStruct) {
+						dialog = new JDialog(parentFrame,
+								"Opensubtitles.org movie info", true);
+						dialog.setContentPane(OpensubtitlesMovieInfoPanel
+								.getInstance((ResponseStruct) rawResult));
+					}
+					if (dialog != null) {
+						dialog.pack();
+						dialog.setResizable(false);
+						dialog.setLocationByPlatform(true);
+						dialog.setIconImage(Global.getInstance().getIcon());
+						dialog.setVisible(true);
+					}
+				}
+			});
 		}
 	};
 }

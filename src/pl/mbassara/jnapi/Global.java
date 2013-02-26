@@ -1,6 +1,10 @@
 package pl.mbassara.jnapi;
 
+import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 import pl.mbassara.jnapi.gui.SubtitlesCharset;
 import pl.mbassara.jnapi.model.Subtitles.Format;
@@ -11,6 +15,12 @@ public class Global {
 	private static Global instance = null;
 
 	private Global() {
+		try {
+			icon = ImageIO.read(getClass().getClassLoader()
+					.getResourceAsStream("icon.png"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static Global getInstance() {
@@ -25,6 +35,7 @@ public class Global {
 	private SubtitlesCharset subtitlesCharset = SubtitlesCharset.Windows;
 	private File lastUsedDirectory = null;
 	private String selectedMovieFilePath = "";
+	private Image icon;
 
 	public Lang getLang() {
 		return lang;
@@ -64,6 +75,10 @@ public class Global {
 
 	public void setSelectedMovieFilePath(String selectedMovieFilePath) {
 		this.selectedMovieFilePath = selectedMovieFilePath;
+	}
+
+	public Image getIcon() {
+		return icon;
 	}
 
 }

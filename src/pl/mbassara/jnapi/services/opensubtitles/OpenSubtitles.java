@@ -21,6 +21,7 @@ import pl.mbassara.jnapi.services.HTTPHelper;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
 import pl.mbassara.jnapi.services.Lang;
 import pl.mbassara.jnapi.services.SubtitlesResult;
+import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.ArrayValue;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.Member;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.SingleValue;
@@ -132,7 +133,8 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	public static ResponseStruct downloadSubtitles(String token,
 			File movieFile, Lang lang) {
 		ResponseStruct response = searchSubtitles(token, movieFile, lang);
-		if (!isResponseOK(response))
+		if (!isResponseOK(response)
+				|| response.getFieldsForName("IDSubtitleFile").size() == 0)
 			return null;
 
 		String idSubtitleFile = response.getFieldsForName("IDSubtitleFile")
@@ -235,7 +237,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 		return list;
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 
 		// System.out.println(logOut("5ev5qrbi743aug37oskpphsbi3"));
 
@@ -263,10 +265,14 @@ public class OpenSubtitles implements ISubtitlesProvider {
 		if (result != JFileChooser.APPROVE_OPTION)
 			return;
 
-		System.out.println(searchSubtitles(logIn(), chooser.getSelectedFile()
-		/*
-		 * new File( "F:\\Maciek\\Videos\\Conspiracy (2001)\\Conspiracy.avi")
-		 */, Lang.PL));
+		System.out.println(searchSubtitles(logIn(), chooser.getSelectedFile(),
+				Lang.PL));
+		System.out.println("results from OS:\t"
+				+ new OpenSubtitles().downloadSubtitles(
+						chooser.getSelectedFile(), Lang.PL).size());
+		System.out.println("results from napi:\t"
+				+ new Napiprojekt().downloadSubtitles(
+						chooser.getSelectedFile(), Lang.PL).size());
 
 		// System.out.println("\"" + "7za.exe\" x -y -so -piBlm8NTigvru0Jr0 \""
 		// + "File" + ".7z\" > \"" + "File" + "\"");

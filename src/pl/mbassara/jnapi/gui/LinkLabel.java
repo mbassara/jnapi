@@ -8,7 +8,6 @@ import java.net.URI;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.SwingConstants;
 
 /**
  * Label which provides hyperlink functionality. On click, given site opens in
@@ -27,7 +26,7 @@ public class LinkLabel extends JButton implements ActionListener {
 	 * Creates empty LinkLabel
 	 */
 	public LinkLabel() {
-		this(null, "");
+		this(null, "", CENTER);
 	}
 
 	/**
@@ -37,7 +36,7 @@ public class LinkLabel extends JButton implements ActionListener {
 	 *            Target site address which has to be opened in web browser.
 	 */
 	public LinkLabel(URI target) {
-		this(target, target.toString());
+		this(target, target.toString(), CENTER);
 	}
 
 	/**
@@ -48,12 +47,12 @@ public class LinkLabel extends JButton implements ActionListener {
 	 * @param text
 	 *            Text which appears on this label.
 	 */
-	public LinkLabel(URI target, String text) {
+	public LinkLabel(URI target, String text, int textAlignment) {
 		super(text);
 		this.target = target;
 		setEnabled(target != null);
 		setText(text);
-		setHorizontalAlignment(SwingConstants.CENTER);
+		setHorizontalAlignment(textAlignment);
 		setBorderPainted(false);
 		setOpaque(false);
 		setContentAreaFilled(false);

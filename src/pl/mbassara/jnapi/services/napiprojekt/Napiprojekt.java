@@ -86,43 +86,45 @@ public class Napiprojekt implements ISubtitlesProvider {
 				Mode.SUBS_COVER, lang);
 
 		ArrayList<SubtitlesResult> list = new ArrayList<SubtitlesResult>();
-		list.add(new SubtitlesResult() {
+		if (result.isStatus())
+			list.add(new SubtitlesResult() {
 
-			@Override
-			public String getProviderName() {
-				return "Napiprojekt";
-			}
+				@Override
+				public String getProviderName() {
+					return "Napiprojekt";
+				}
 
-			@Override
-			public String getMovieReleaseName() {
-				return result.getTitle();
-			}
+				@Override
+				public String getMovieReleaseName() {
+					return result.getTitle();
+				}
 
-			@Override
-			public String getMovieName() {
-				return result.getTitle();
-			}
+				@Override
+				public String getMovieName() {
+					return result.getTitle();
+				}
 
-			@Override
-			public boolean isFound() {
-				return result.isStatus();
-			}
+				@Override
+				public boolean isFound() {
+					return result.isStatus();
+				}
 
-			@Override
-			public String getSubtitlesAsString() {
-				return FileHelper.decodeBase64TextData(result.getSubsAsciiBin());
-			}
+				@Override
+				public String getSubtitlesAsString() {
+					return FileHelper.decodeBase64TextData(result
+							.getSubsAsciiBin());
+				}
 
-			@Override
-			protected File getMovieFile() {
-				return movieFile;
-			}
+				@Override
+				protected File getMovieFile() {
+					return movieFile;
+				}
 
-			@Override
-			public Object getRawResult() {
-				return result;
-			}
-		});
+				@Override
+				public Object getRawResult() {
+					return result;
+				}
+			});
 
 		return list;
 	}
