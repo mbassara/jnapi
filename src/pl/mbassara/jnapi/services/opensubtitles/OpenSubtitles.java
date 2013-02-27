@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import javax.swing.JFileChooser;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import pl.mbassara.jnapi.gui.MediaFileFilter;
 import pl.mbassara.jnapi.gui.SubtitlesCharset;
+import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
@@ -30,7 +32,11 @@ import pl.mbassara.jnapi.services.opensubtitles.parameters.Value;
 
 public class OpenSubtitles implements ISubtitlesProvider {
 
+	private static final Logger logger = Logger.getLogger(OpenSubtitles.class
+			.getName());
+
 	static {
+		logger.addHandler(new FileLogHandler("logs/OpenSubtitles.txt", true));
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		try {
 			parser = factory.newSAXParser();
@@ -65,10 +71,13 @@ public class OpenSubtitles implements ISubtitlesProvider {
 			parser.parse(new ByteArrayInputStream(response.getBytes("UTF-8")),
 					handler);
 		} catch (UnsupportedEncodingException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		} catch (SAXException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 
@@ -116,6 +125,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 
 			return searchSubtitles(token, lang, movieHash, fileSize);
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;

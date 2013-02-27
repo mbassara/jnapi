@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -20,6 +21,7 @@ import javax.swing.UIManager;
 
 import pl.mbassara.jnapi.gui.ImagePanel;
 import pl.mbassara.jnapi.gui.LinkLabel;
+import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.Lang;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt.Mode;
@@ -48,7 +50,12 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 	private JLabel votesLabel = new JLabel();
 	private LinkLabel filmWebLinkLabel = new LinkLabel();
 
+	private final Logger logger = Logger
+			.getLogger(NapiprojektMovieInfoPanel.class.getName());
+
 	private NapiprojektMovieInfoPanel() {
+		logger.addHandler(new FileLogHandler(
+				"logs/NapiprojektMovieInfoPanel.txt", true));
 
 		setLayout(new BorderLayout());
 
@@ -119,6 +126,7 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 
 				setContent(imageData, "", "", "", "", "", "", "", "", "", "");
 			} catch (IOException e) {
+				logger.warning(e.toString());
 				e.printStackTrace();
 			}
 		} else
@@ -151,6 +159,7 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 			filmWebLinkLabel
 					.setText("See the site of this movie on filmweb.pl");
 		} catch (URISyntaxException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 	}

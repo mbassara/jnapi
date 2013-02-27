@@ -5,9 +5,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URI;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+
+import pl.mbassara.jnapi.logs.FileLogHandler;
 
 /**
  * Label which provides hyperlink functionality. On click, given site opens in
@@ -21,6 +24,8 @@ public class LinkLabel extends JButton implements ActionListener {
 	private static final long serialVersionUID = -5569311370440891748L;
 
 	private URI target;
+
+	private final Logger logger = Logger.getLogger(LinkLabel.class.getName());
 
 	/**
 	 * Creates empty LinkLabel
@@ -49,6 +54,7 @@ public class LinkLabel extends JButton implements ActionListener {
 	 */
 	public LinkLabel(URI target, String text, int textAlignment) {
 		super(text);
+		logger.addHandler(new FileLogHandler("logs/LinkLabel.txt", true));
 		this.target = target;
 		setEnabled(target != null);
 		setText(text);
@@ -78,6 +84,7 @@ public class LinkLabel extends JButton implements ActionListener {
 			try {
 				Desktop.getDesktop().browse(target);
 			} catch (IOException e) {
+				logger.warning(e.toString());
 				e.printStackTrace();
 			}
 		} else {
