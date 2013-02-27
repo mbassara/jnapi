@@ -3,10 +3,12 @@ package pl.mbassara.jnapi;
 import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
 import pl.mbassara.jnapi.gui.SubtitlesCharset;
+import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.model.Subtitles.Format;
 import pl.mbassara.jnapi.services.Lang;
 
@@ -14,11 +16,17 @@ public class Global {
 
 	private static Global instance = null;
 
+	private static final Logger logger = Logger.getLogger(Global.class
+			.getName());
+
 	private Global() {
+		logger.addHandler(new FileLogHandler("logs/Global.txt", true));
+
 		try {
 			icon = ImageIO.read(getClass().getClassLoader()
 					.getResourceAsStream("icon.png"));
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 	}

@@ -6,11 +6,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
+import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.model.Subtitle;
 import pl.mbassara.jnapi.model.Subtitles;
 
 public class TMPlayerParser extends Parser {
+
+	private final Logger logger = Logger.getLogger(TMPlayerParser.class
+			.getName());
+
+	public TMPlayerParser() {
+		logger.addHandler(new FileLogHandler("logs/TMPlayerParser.txt", true));
+	}
 
 	@Override
 	protected Subtitles parse(InputStream inputStream, String charset,
@@ -65,8 +74,10 @@ public class TMPlayerParser extends Parser {
 			return subtitles;
 
 		} catch (FileNotFoundException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;

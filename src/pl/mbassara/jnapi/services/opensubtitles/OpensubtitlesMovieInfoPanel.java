@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -17,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import pl.mbassara.jnapi.gui.LinkLabel;
+import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.services.Lang;
 
 public class OpensubtitlesMovieInfoPanel extends JPanel {
@@ -55,7 +57,12 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 	private LinkLabel imbdLinkLabel = new LinkLabel();
 	private LinkLabel directDownloadLinkLabel = new LinkLabel();
 
+	private final Logger logger = Logger
+			.getLogger(OpensubtitlesMovieInfoPanel.class.getName());
+
 	private OpensubtitlesMovieInfoPanel() {
+		logger.addHandler(new FileLogHandler(
+				"logs/OpensubtitlesMovieInfoPanel.txt", true));
 
 		setLayout(new BorderLayout());
 
@@ -201,6 +208,7 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 						+ "</html>");
 			}
 		} catch (URISyntaxException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 	}

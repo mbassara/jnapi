@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,6 +29,8 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import pl.mbassara.jnapi.Global;
+import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.mediainfo.MediaInfo;
 import pl.mbassara.jnapi.model.Subtitles.Format;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
 import pl.mbassara.jnapi.services.Lang;
@@ -61,6 +64,8 @@ public class NapiWindow extends JFrame {
 	private final JScrollPane southPane = new JScrollPane();
 	private final ResultsTable resultsTable = new ResultsTable(this);
 
+	private final Logger logger = Logger.getLogger(NapiWindow.class.getName());
+
 	public NapiWindow() {
 		initialize();
 		initializeNorthPane();
@@ -70,10 +75,15 @@ public class NapiWindow extends JFrame {
 	}
 
 	private void initialize() {
+		File logs = new File("logs");
+		if (!logs.exists())
+			logs.mkdir();
+		logger.addHandler(new FileLogHandler("logs/NapiWindow.txt", true));
+
 		setResizable(false);
 		setContentPane(new JPanel(new BorderLayout(5, 5)));
 		((JPanel) getContentPane()).setBorder(new EmptyBorder(10, 10, 10, 10));
-		setTitle("JNapi v0.1");
+		setTitle("JNapi v0.2");
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setLocationByPlatform(true);
 		add(mainPane, BorderLayout.CENTER);
@@ -157,6 +167,7 @@ public class NapiWindow extends JFrame {
 							}
 
 						} catch (FileNotFoundException e) {
+							logger.warning(e.toString());
 							e.printStackTrace();
 							JOptionPane
 									.showMessageDialog(
@@ -167,6 +178,7 @@ public class NapiWindow extends JFrame {
 							setAllEnabled(true);
 							setOptionsEnabled(false);
 						} catch (IOException e) {
+							logger.warning(e.toString());
 							e.printStackTrace();
 							setAllEnabled(true);
 							setOptionsEnabled(false);
@@ -272,6 +284,7 @@ public class NapiWindow extends JFrame {
 	}
 
 	public static void main(String[] args) {
+
 		SwingUtilities.invokeLater(new Runnable() {
 
 			@Override
@@ -283,6 +296,7 @@ public class NapiWindow extends JFrame {
 					e.printStackTrace();
 				}
 				try {
+					new MediaInfo();
 					new NapiWindow().setVisible(true);
 				} catch (UnsatisfiedLinkError e) {
 					JOptionPane.showMessageDialog(null,

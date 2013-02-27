@@ -7,6 +7,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Logger;
+
+import pl.mbassara.jnapi.logs.FileLogHandler;
 
 /**
  * Helper class which provides simple interface for HTTP requests
@@ -15,12 +18,19 @@ import java.net.URL;
  */
 public abstract class HTTPHelper {
 
+	private static final Logger logger = Logger.getLogger(HTTPHelper.class
+			.getName());
+
 	public static String sendNapiprojektRequest(String url, String data) {
 		return sendRequest(url, "application/x-www-form-urlencoded", data);
 	}
 
 	public static String sendOpenSubtitlesRequest(String url, String data) {
 		return sendRequest(url, "text/xml", data);
+	}
+
+	static {
+		logger.addHandler(new FileLogHandler("logs/HTTPHelper.txt", true));
 	}
 
 	/**
@@ -60,8 +70,10 @@ public abstract class HTTPHelper {
 			in.close();
 			urlConnection.disconnect();
 		} catch (MalformedURLException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
+			logger.warning(e.toString());
 			e.printStackTrace();
 		}
 
