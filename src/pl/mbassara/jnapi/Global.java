@@ -23,13 +23,23 @@ public class Global {
 	private static final Logger logger = Logger.getLogger("Jnapi_main_logger");
 	private static Handler handler = null;
 
+	private File configFile;
+
 	private Global() {
 
 		try {
 			icon = ImageIO.read(getClass().getClassLoader()
 					.getResourceAsStream("icon.png"));
 
-			File configFile = new File("config.dat");
+			if (System.getProperty("os.name").toLowerCase().contains("win"))
+				configFile = new File(System.getenv("APPDATA") + File.separator
+						+ "JNapi" + File.separator + "config.dat");
+			else
+				configFile = new File(System.getProperty("user.home")
+						+ File.separator + "JNapi" + File.separator
+						+ "config.dat");
+
+			configFile.getParentFile().mkdirs();
 
 			if (configFile.exists()) {
 				BufferedReader input = new BufferedReader(new FileReader(
@@ -56,7 +66,7 @@ public class Global {
 
 				input.close();
 			} else {
-				FileWriter output = new FileWriter(new File("config.dat"));
+				FileWriter output = new FileWriter(configFile);
 				output.write("LANG:\t\tNULL;\nFORMAT:\t\tNULL;\nCHARSET:\tNULL;\nLAST_DIR:\tNULL;");
 				output.close();
 
@@ -136,8 +146,8 @@ public class Global {
 
 	private void updateConfig(Object value) {
 		try {
-			BufferedReader input = new BufferedReader(new FileReader(new File(
-					"config.dat")));
+			BufferedReader input = new BufferedReader(
+					new FileReader(configFile));
 
 			String line, config = "";
 			while ((line = input.readLine()) != null) {
@@ -158,7 +168,7 @@ public class Global {
 
 			input.close();
 
-			FileWriter output = new FileWriter(new File("config.dat"));
+			FileWriter output = new FileWriter(configFile);
 			output.write(config);
 			output.close();
 
