@@ -9,6 +9,6 @@ To use JNapi, you have to install [MediaInfo library](http://mediainfo.sourcefor
 
 ### Installer
 
-If you want to try Jnapi, you can download installer with MediaInfo.dll included:  
-[JNapi v0.2 x86](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x86.exe)  
-[JNapi v0.2 x64](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x64.exe)
+If you want to try Jnapi, you can download installer with `MediaInfo.dll` included:  
+[JNapi v0.2 - x86](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x86.exe)  
+[JNapi v0.2 - x64](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x64.exe)
