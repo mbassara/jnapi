@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.logging.Logger;
 
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -18,7 +17,6 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
 import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
@@ -32,12 +30,7 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 	private final int[] selectedRowIndex = new int[1];
 	private final JFrame parentFrame;
 
-	private final Logger logger = Logger
-			.getLogger(ResultsTableMouseAdapter.class.getName());
-
 	public ResultsTableMouseAdapter(JFrame parentFrame, ResultsTable table) {
-		logger.addHandler(new FileLogHandler(
-				"logs/ResultsTableMouseAdapter.txt", true));
 		this.table = table;
 		this.parentFrame = parentFrame;
 	}
@@ -113,7 +106,7 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 						"Subtitles cannot be saved.", "Can't save",
 						JOptionPane.WARNING_MESSAGE);
 		} catch (UnsupportedSubtitlesFormatException e1) {
-			logger.warning(e1.toString());
+			Global.getInstance().getLogger().warning(e1.toString());
 			e1.printStackTrace();
 			JOptionPane
 					.showMessageDialog(

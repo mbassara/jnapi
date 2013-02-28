@@ -6,19 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.model.Subtitle;
 import pl.mbassara.jnapi.model.Subtitles;
 
 public class MPL2Parser extends Parser {
-
-	private final Logger logger = Logger.getLogger(MPL2Parser.class.getName());
-
-	public MPL2Parser() {
-		logger.addHandler(new FileLogHandler("logs/MPL2Parser.txt", true));
-	}
 
 	@Override
 	public Subtitles parse(InputStream inputStream, String charset, double fps)
@@ -61,10 +54,10 @@ public class MPL2Parser extends Parser {
 			return subtitles;
 
 		} catch (FileNotFoundException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;

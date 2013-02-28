@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -29,7 +28,6 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.mediainfo.MediaInfo;
 import pl.mbassara.jnapi.model.Subtitles.Format;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
@@ -64,8 +62,6 @@ public class NapiWindow extends JFrame {
 	private final JScrollPane southPane = new JScrollPane();
 	private final ResultsTable resultsTable = new ResultsTable(this);
 
-	private final Logger logger = Logger.getLogger(NapiWindow.class.getName());
-
 	public NapiWindow() {
 		initialize();
 		initializeNorthPane();
@@ -75,10 +71,6 @@ public class NapiWindow extends JFrame {
 	}
 
 	private void initialize() {
-		File logs = new File("logs");
-		if (!logs.exists())
-			logs.mkdir();
-		logger.addHandler(new FileLogHandler("logs/NapiWindow.txt", true));
 
 		setResizable(false);
 		setContentPane(new JPanel(new BorderLayout(5, 5)));
@@ -150,10 +142,10 @@ public class NapiWindow extends JFrame {
 
 							if (subtitlesFound) {
 								filePathTextField.setText(selectedFile
-										.getCanonicalPath());
+										.getName());
 
 								Global.getInstance().setSelectedMovieFilePath(
-										filePathTextField.getText());
+										selectedFile.getCanonicalPath());
 								setAllEnabled(true);
 							} else {
 								JOptionPane
@@ -167,7 +159,8 @@ public class NapiWindow extends JFrame {
 							}
 
 						} catch (FileNotFoundException e) {
-							logger.warning(e.toString());
+							Global.getInstance().getLogger()
+									.warning(e.toString());
 							e.printStackTrace();
 							JOptionPane
 									.showMessageDialog(
@@ -178,7 +171,8 @@ public class NapiWindow extends JFrame {
 							setAllEnabled(true);
 							setOptionsEnabled(false);
 						} catch (IOException e) {
-							logger.warning(e.toString());
+							Global.getInstance().getLogger()
+									.warning(e.toString());
 							e.printStackTrace();
 							setAllEnabled(true);
 							setOptionsEnabled(false);
@@ -191,7 +185,7 @@ public class NapiWindow extends JFrame {
 			}
 		});
 
-		fileSelectionPane.add(new Label("File path:"));
+		fileSelectionPane.add(new Label("File name:"));
 		fileSelectionPane.add(filePathTextField);
 		fileSelectionPane.add(openFileButton);
 		northPane.add(fileSelectionPane);
@@ -222,6 +216,8 @@ public class NapiWindow extends JFrame {
 		optionsPane.add(charsetPane);
 		charsetPane.add(charsetLabel);
 		charsetPane.add(charsetComboBox);
+		charsetComboBox.setSelectedItem(Global.getInstance()
+				.getSubtitlesCharset().getValue());
 		charsetComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -235,6 +231,8 @@ public class NapiWindow extends JFrame {
 		optionsPane.add(formatPane);
 		formatPane.add(formatLabel);
 		formatPane.add(formatComboBox);
+		formatComboBox.setSelectedItem(Global.getInstance().getFormat()
+				.toString());
 		formatComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -248,6 +246,7 @@ public class NapiWindow extends JFrame {
 		optionsPane.add(langPane);
 		langPane.add(langLabel);
 		langPane.add(langComboBox);
+		langComboBox.setSelectedItem(Global.getInstance().getLang().getValue());
 		langComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {

@@ -5,9 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Logger;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.model.Subtitle;
 import pl.mbassara.jnapi.model.Subtitles;
 
@@ -19,11 +18,7 @@ public class SubRipParser extends Parser {
 
 	private STATE state;
 
-	private final Logger logger = Logger
-			.getLogger(SubRipParser.class.getName());
-
 	public SubRipParser() {
-		logger.addHandler(new FileLogHandler("logs/SubRipParser.txt", true));
 		state = STATE.LINE_NO;
 	}
 
@@ -102,10 +97,10 @@ public class SubRipParser extends Parser {
 			return subtitles;
 
 		} catch (FileNotFoundException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;

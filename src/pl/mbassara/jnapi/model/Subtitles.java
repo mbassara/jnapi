@@ -8,9 +8,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 
 /**
  * The Subtitles class represents movie subtitles with certain FPS, which can be
@@ -27,8 +26,6 @@ public class Subtitles {
 	private double fps;
 	private ArrayList<Subtitle> subtitles;
 
-	private final Logger logger = Logger.getLogger(Subtitles.class.getName());
-
 	/**
 	 * Construct subtitles object for given fps.
 	 * 
@@ -36,7 +33,6 @@ public class Subtitles {
 	 *            floating point value representing frames per seconds.
 	 */
 	public Subtitles(double fps) {
-		logger.addHandler(new FileLogHandler("logs/Subtitles.txt", true));
 		this.fps = fps;
 		subtitles = new ArrayList<Subtitle>();
 	}
@@ -82,20 +78,20 @@ public class Subtitles {
 			return true;
 
 		} catch (UnsupportedEncodingException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} finally {
 			try {
 				writer.flush();
 				writer.close();
 			} catch (IOException e) {
-				logger.warning(e.toString());
+				Global.getInstance().getLogger().warning(e.toString());
 				e.printStackTrace();
 			}
 		}

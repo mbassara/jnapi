@@ -1,11 +1,10 @@
 package pl.mbassara.jnapi.services;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.mediainfo.MediaInfo;
 import pl.mbassara.jnapi.model.Subtitles;
 import pl.mbassara.jnapi.model.Subtitles.Format;
@@ -16,13 +15,6 @@ import pl.mbassara.jnapi.model.parsers.TMPlayerParser;
 import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
 
 public abstract class SubtitlesResult {
-
-	private final Logger logger = Logger.getLogger(SubtitlesResult.class
-			.getName());
-
-	public SubtitlesResult() {
-		logger.addHandler(new FileLogHandler("logs/SubtitlesResult.txt", true));
-	}
 
 	public abstract boolean isFound();
 
@@ -62,7 +54,7 @@ public abstract class SubtitlesResult {
 		try {
 			subtitles = new MicroDVDParser().parse(subtitlesString, fps);
 		} catch (UnsupportedSubtitlesFormatException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			System.out.println("Error in line: " + e.getWrongLine()
 					+ "\nParsing with MicroDVDParser failed. Trying SubRip.\n");
 		}
@@ -70,7 +62,7 @@ public abstract class SubtitlesResult {
 			try {
 				subtitles = new SubRipParser().parse(subtitlesString, fps);
 			} catch (UnsupportedSubtitlesFormatException e) {
-				logger.warning(e.toString());
+				Global.getInstance().getLogger().warning(e.toString());
 				System.out.println("Error in line: " + e.getWrongLine()
 						+ "\nParsing with SubRipParser failed. Trying MPL2.\n");
 			}
@@ -79,7 +71,7 @@ public abstract class SubtitlesResult {
 			try {
 				subtitles = new MPL2Parser().parse(subtitlesString, fps);
 			} catch (UnsupportedSubtitlesFormatException e) {
-				logger.warning(e.toString());
+				Global.getInstance().getLogger().warning(e.toString());
 				System.out
 						.println("Error in line: "
 								+ e.getWrongLine()
@@ -90,7 +82,7 @@ public abstract class SubtitlesResult {
 			try {
 				subtitles = new TMPlayerParser().parse(subtitlesString, fps);
 			} catch (UnsupportedSubtitlesFormatException e) {
-				logger.warning(e.toString());
+				Global.getInstance().getLogger().warning(e.toString());
 				System.out
 						.println("Error in line: "
 								+ e.getWrongLine()

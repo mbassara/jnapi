@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -14,7 +13,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.SAXException;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.services.FileHelper;
 import pl.mbassara.jnapi.services.HTTPHelper;
 import pl.mbassara.jnapi.services.ISubtitlesProvider;
@@ -35,13 +34,6 @@ public class Napiprojekt implements ISubtitlesProvider {
 	}
 
 	private static final String napiUrl = "http://www.napiprojekt.pl/api/api-napiprojekt3.php";
-
-	private final static Logger logger = Logger.getLogger(Napiprojekt.class
-			.getName());
-
-	static {
-		logger.addHandler(new FileLogHandler("logs/Napiprojekt.txt", true));
-	}
 
 	private static String getBody(String hash, Mode mode, Lang lang) {
 		String result = "downloaded_subtitles_lang=";
@@ -76,16 +68,16 @@ public class Napiprojekt implements ISubtitlesProvider {
 					new ByteArrayInputStream(xmlResponse.getBytes("UTF-8")),
 					handler);
 		} catch (ParserConfigurationException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (SAXException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 
