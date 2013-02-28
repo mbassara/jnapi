@@ -1,6 +1,5 @@
 package pl.mbassara.jnapi.services;
 
-
 public enum Lang {
 	PL("Polish"), ENG("English");
 

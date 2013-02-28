@@ -6,26 +6,22 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 
 public class ImagePanel extends JPanel {
 
 	private static final long serialVersionUID = -1623285541442018663L;
 	private InnerImagePanel imagePanel;
 
-	private final Logger logger = Logger.getLogger(ImagePanel.class.getName());
-
 	public ImagePanel() {
 		this(null);
 	}
 
 	public ImagePanel(byte[] imageData) {
-		logger.addHandler(new FileLogHandler("logs/ImagePanel.txt", true));
 		setLayout(new FlowLayout(FlowLayout.CENTER, 20, 30));
 
 		if (imageData != null)
@@ -49,7 +45,8 @@ public class ImagePanel extends JPanel {
 			try {
 				image = ImageIO.read(new ByteArrayInputStream(imageData));
 			} catch (IOException ex) {
-				logger.warning(ex.toString());
+				Global.getInstance().getLogger().warning(ex.toString());
+				Global.getInstance().getLogger().warning(ex.toString());
 				ex.printStackTrace();
 			}
 		}

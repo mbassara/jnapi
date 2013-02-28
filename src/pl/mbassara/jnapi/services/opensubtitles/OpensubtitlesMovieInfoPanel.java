@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -17,8 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.gui.LinkLabel;
-import pl.mbassara.jnapi.logs.FileLogHandler;
 import pl.mbassara.jnapi.services.Lang;
 
 public class OpensubtitlesMovieInfoPanel extends JPanel {
@@ -57,12 +56,7 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 	private LinkLabel imbdLinkLabel = new LinkLabel();
 	private LinkLabel directDownloadLinkLabel = new LinkLabel();
 
-	private final Logger logger = Logger
-			.getLogger(OpensubtitlesMovieInfoPanel.class.getName());
-
 	private OpensubtitlesMovieInfoPanel() {
-		logger.addHandler(new FileLogHandler(
-				"logs/OpensubtitlesMovieInfoPanel.txt", true));
 
 		setLayout(new BorderLayout());
 
@@ -113,9 +107,9 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 		rightSubsInfoPanel.add(movieSizeLabel);
 		leftSubsInfoPanel.add(new JLabel("Created:  ", JLabel.RIGHT));
 		rightSubsInfoPanel.add(subAddDateLabel);
-		leftSubsInfoPanel.add(new JLabel("Comment:  ", JLabel.RIGHT));
-		rightSubsInfoPanel.add(subDownloadsCntLabel);
 		leftSubsInfoPanel.add(new JLabel("Downloads:  ", JLabel.RIGHT));
+		rightSubsInfoPanel.add(subDownloadsCntLabel);
+		leftSubsInfoPanel.add(new JLabel("Comment:  ", JLabel.RIGHT));
 		rightSubsInfoPanel.add(subAuthorCommentTextField);
 
 		subAuthorCommentTextField.setEditable(false);
@@ -208,7 +202,7 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 						+ "</html>");
 			}
 		} catch (URISyntaxException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 	}

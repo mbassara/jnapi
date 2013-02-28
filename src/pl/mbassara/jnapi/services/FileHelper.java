@@ -12,12 +12,11 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.bind.DatatypeConverter;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import sun.misc.BASE64Decoder;
 
 /**
@@ -28,13 +27,6 @@ import sun.misc.BASE64Decoder;
  * 
  */
 public abstract class FileHelper {
-
-	private static final Logger logger = Logger.getLogger(FileHelper.class
-			.getName());
-
-	static {
-		logger.addHandler(new FileLogHandler("logs/FileHelper.txt", true));
-	}
 
 	/**
 	 * Calculates hash of first 10MB of given file
@@ -61,17 +53,17 @@ public abstract class FileHelper {
 			return DatatypeConverter.printHexBinary(md5).toLowerCase();
 
 		} catch (NoSuchAlgorithmException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} finally {
 			if (stream != null)
 				try {
 					stream.close();
 				} catch (IOException e) {
-					logger.warning(e.toString());
+					Global.getInstance().getLogger().warning(e.toString());
 					e.printStackTrace();
 				}
 		}
@@ -91,7 +83,7 @@ public abstract class FileHelper {
 		try {
 			return decoder.decodeBuffer(base64Data);
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 
@@ -116,7 +108,7 @@ public abstract class FileHelper {
 
 			return true;
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 			return false;
 		}
@@ -134,7 +126,7 @@ public abstract class FileHelper {
 		try {
 			return new String(data, "windows-1250");
 		} catch (UnsupportedEncodingException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;
@@ -161,7 +153,7 @@ public abstract class FileHelper {
 			return out.toString();
 
 		} catch (IOException ex) {
-			logger.warning(ex.toString());
+			Global.getInstance().getLogger().warning(ex.toString());
 			ex.printStackTrace();
 		}
 
@@ -190,7 +182,7 @@ public abstract class FileHelper {
 			out.close();
 
 		} catch (IOException ex) {
-			logger.warning(ex.toString());
+			Global.getInstance().getLogger().warning(ex.toString());
 			ex.printStackTrace();
 		}
 	}

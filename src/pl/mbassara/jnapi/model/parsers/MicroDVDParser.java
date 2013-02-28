@@ -6,20 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
-import pl.mbassara.jnapi.logs.FileLogHandler;
+import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.model.Subtitle;
 import pl.mbassara.jnapi.model.Subtitles;
 
 public class MicroDVDParser extends Parser {
-
-	private final Logger logger = Logger.getLogger(MicroDVDParser.class
-			.getName());
-
-	public MicroDVDParser() {
-		logger.addHandler(new FileLogHandler("logs/MicroDVDParser.txt", true));
-	}
 
 	@Override
 	public Subtitles parse(InputStream inputStream, String charset, double fps)
@@ -63,10 +55,10 @@ public class MicroDVDParser extends Parser {
 			return subtitles;
 
 		} catch (FileNotFoundException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
-			logger.warning(e.toString());
+			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();
 		}
 		return null;
