@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 
 import pl.mbassara.jnapi.Global;
@@ -35,6 +36,9 @@ import pl.mbassara.jnapi.services.Lang;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
 import pl.mbassara.jnapi.services.opensubtitles.OpenSubtitles;
+
+import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
+import com.sun.jna.Platform;
 
 public class NapiWindow extends JFrame {
 
@@ -289,12 +293,7 @@ public class NapiWindow extends JFrame {
 			@Override
 			public void run() {
 				try {
-					UIManager.setLookAndFeel(UIManager
-							.getSystemLookAndFeelClassName());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				try {
+					setLookAndFeel();
 					new MediaInfo();
 					new NapiWindow().setVisible(true);
 				} catch (UnsatisfiedLinkError e) {
@@ -306,4 +305,25 @@ public class NapiWindow extends JFrame {
 		});
 	}
 
+	private static void setLookAndFeel() {
+		try {
+			if (Platform.isWindows()) {
+				UIManager.setLookAndFeel(UIManager
+						.getSystemLookAndFeelClassName());
+			} else if (Platform.isLinux()) {
+				boolean gtkInstalled = false;
+				for (LookAndFeelInfo info : UIManager
+						.getInstalledLookAndFeels())
+					if (info.getClassName().equals(
+							GTKLookAndFeel.class.getName()))
+						gtkInstalled = true;
+
+				if (gtkInstalled)
+					UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
 }

@@ -39,7 +39,7 @@ public abstract class SubtitlesResult {
 			mediaInfo = new MediaInfo();
 		} catch (UnsatisfiedLinkError e) {
 			JOptionPane.showMessageDialog(null,
-					"mediainfo.dll library is not found!", "Error",
+					"MediaInfo library is not found!", "Error",
 					JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -47,6 +47,8 @@ public abstract class SubtitlesResult {
 
 		double fps = Double.parseDouble(mediaInfo.get(
 				MediaInfo.StreamKind.Video, 0, "FrameRate"));
+
+		mediaInfo.close();
 
 		String subtitlesString = getSubtitlesAsString();
 		Subtitles subtitles = null;

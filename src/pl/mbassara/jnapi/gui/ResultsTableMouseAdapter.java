@@ -38,7 +38,7 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e) {
+	public void mousePressed(MouseEvent e) {
 		selectedRowIndex[0] = table.rowAtPoint(e.getPoint());
 		if (selectedRowIndex[0] >= 0
 				&& selectedRowIndex[0] < table.getRowCount()) {
@@ -66,7 +66,12 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 			menu.add(item);
 
 			menu.show(e.getComponent(), e.getX(), e.getY());
-		} else if (e.getClickCount() == 2) {
+		}
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (e.getClickCount() == 2) {
 			saveSubtitles();
 		}
 	}
