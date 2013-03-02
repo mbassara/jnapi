@@ -298,7 +298,7 @@ public class NapiWindow extends JFrame {
 					new NapiWindow().setVisible(true);
 				} catch (UnsatisfiedLinkError e) {
 					JOptionPane.showMessageDialog(null,
-							"mediainfo.dll library is not found!", "Error",
+							"MediaInfo library is not found!", "Error",
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
