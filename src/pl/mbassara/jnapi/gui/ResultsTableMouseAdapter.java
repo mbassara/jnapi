@@ -15,8 +15,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 
 import pl.mbassara.jnapi.Global;
+import pl.mbassara.jnapi.model.Subtitles.Format;
 import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
@@ -127,17 +129,32 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 	private ActionListener saveAsActionListener = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			final String extension = Global.getInstance().getFormat() == Format.SubRip ? "srt"
+					: "txt";
+
 			String proposedPath = Global.getInstance()
 					.getSelectedMovieFilePath();
 			proposedPath = proposedPath.substring(0,
 					proposedPath.lastIndexOf("."))
-					+ ".txt";
+					+ "." + extension;
 
 			JFileChooser chooser = new JFileChooser(Global.getInstance()
 					.getLastUsedDirectory());
 			chooser.setSelectedFile(new File(proposedPath));
 			chooser.setDialogTitle("Save subtitles");
 			chooser.setMultiSelectionEnabled(false);
+			chooser.setFileFilter(new FileFilter() {
+				@Override
+				public String getDescription() {
+					return Global.getInstance().getFormat().toString()
+							+ " subtitles (." + extension + ")";
+				}
+
+				@Override
+				public boolean accept(File arg0) {
+					return true;
+				}
+			});
 			int option = chooser.showSaveDialog(table);
 
 			if (option != JFileChooser.APPROVE_OPTION)

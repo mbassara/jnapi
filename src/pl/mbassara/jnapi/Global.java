@@ -36,7 +36,7 @@ public class Global {
 						+ "JNapi" + File.separator + "config.dat");
 			else
 				configFile = new File(System.getProperty("user.home")
-						+ File.separator + "JNapi" + File.separator
+						+ File.separator + ".JNapi" + File.separator
 						+ "config.dat");
 
 			configFile.getParentFile().mkdirs();
