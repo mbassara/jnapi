@@ -27,6 +27,8 @@ import pl.mbassara.jnapi.services.napiprojekt.NapiprojektMovieInfoPanel;
 import pl.mbassara.jnapi.services.opensubtitles.OpensubtitlesMovieInfoPanel;
 import pl.mbassara.jnapi.services.opensubtitles.ResponseStruct;
 
+import com.sun.jna.Platform;
+
 public class ResultsTableMouseAdapter extends MouseAdapter {
 
 	private final ResultsTable table;
@@ -50,31 +52,49 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 
 		}
 
-		if (e.isPopupTrigger() && e.getComponent() instanceof JTable) {
-			JPopupMenu menu = new JPopupMenu("menu");
-
-			JMenuItem item = new JMenuItem("Save");
-			item.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
-			item.addActionListener(saveActionListener);
-			menu.add(item);
-
-			item = new JMenuItem("Save As");
-			item.addActionListener(saveAsActionListener);
-			menu.add(item);
-
-			item = new JMenuItem("Properties");
-			item.addActionListener(propertiesActionListener);
-			menu.add(item);
-
-			menu.show(e.getComponent(), e.getX(), e.getY());
+		if (Platform.isLinux() && e.isPopupTrigger()
+				&& e.getComponent() instanceof JTable) {
+			createMenu().show(e.getComponent(), e.getX(), e.getY());
 		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
+		selectedRowIndex[0] = table.rowAtPoint(e.getPoint());
+		if (selectedRowIndex[0] >= 0
+				&& selectedRowIndex[0] < table.getRowCount()) {
+			table.setRowSelectionInterval(selectedRowIndex[0],
+					selectedRowIndex[0]);
+		} else {
+			table.clearSelection();
+
+		}
+
 		if (e.getClickCount() == 2) {
 			saveSubtitles();
+		} else if (!Platform.isLinux() && e.isPopupTrigger()
+				&& e.getComponent() instanceof JTable) {
+			createMenu().show(e.getComponent(), e.getX(), e.getY());
 		}
+	}
+
+	private JPopupMenu createMenu() {
+		JPopupMenu menu = new JPopupMenu("menu");
+
+		JMenuItem item = new JMenuItem("Save");
+		item.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
+		item.addActionListener(saveActionListener);
+		menu.add(item);
+
+		item = new JMenuItem("Save As");
+		item.addActionListener(saveAsActionListener);
+		menu.add(item);
+
+		item = new JMenuItem("Properties");
+		item.addActionListener(propertiesActionListener);
+		menu.add(item);
+
+		return menu;
 	}
 
 	private void saveSubtitles() {

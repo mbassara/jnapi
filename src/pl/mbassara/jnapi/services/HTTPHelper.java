@@ -35,58 +35,20 @@ public abstract class HTTPHelper {
 	 *            data which will be send to server as request body
 	 * @return XML containing server's response
 	 */
-	public static String sendRequest(final String url,
-			final String contentType, final String data, long timeoutMillis)
-			throws TimeoutException {
+	public static String sendRequest(String url, String contentType,
+			String data, long timeoutMillis) throws TimeoutException {
 
-		final StringBuilder result = new StringBuilder();
-		final BooleanWrapper isResultReady = new BooleanWrapper(false);
 		long begTime = System.currentTimeMillis();
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
+		HTTPRequestThread thread = new HTTPRequestThread(url, contentType, data);
+		thread.start();
 
-					HttpURLConnection urlConnection = (HttpURLConnection) (new URL(
-							url).openConnection());
-					urlConnection.setDoOutput(true);
-					urlConnection.setRequestMethod("POST");
-					urlConnection.setRequestProperty("content-type",
-							contentType);
-					urlConnection.setRequestProperty("accept", "text/plain");
-					urlConnection.connect();
-
-					OutputStreamWriter out = new OutputStreamWriter(
-							urlConnection.getOutputStream());
-
-					out.write(data);
-					out.flush();
-					out.close();
-
-					BufferedReader in = new BufferedReader(
-							new InputStreamReader(
-									urlConnection.getInputStream(), "UTF-8"));
-					String tmp;
-					while ((tmp = in.readLine()) != null)
-						result.append(tmp);
-
-					in.close();
-					urlConnection.disconnect();
-
-					isResultReady.set(true);
-				} catch (IOException e) {
-					Global.getInstance().getLogger().warning(e.toString());
-					e.printStackTrace();
-				}
-
-			}
-		}, "HttpRequestThread").start();
-
-		while (!isResultReady.get()) {
-			if (System.currentTimeMillis() - begTime > timeoutMillis)
+		while (!thread.isResultReady()) {
+			if (System.currentTimeMillis() - begTime > timeoutMillis) {
+				thread.cancel();
 				throw new TimeoutException("Http POST request timeout ("
 						+ timeoutMillis + " ms)");
+			}
 
 			try {
 				Thread.sleep(15);
@@ -95,22 +57,78 @@ public abstract class HTTPHelper {
 			}
 		}
 
-		return result.toString();
+		return thread.getResponse();
 	}
 
-	private static class BooleanWrapper {
-		private boolean value;
+	private static class HTTPRequestThread extends Thread {
 
-		public BooleanWrapper(boolean value) {
-			this.value = value;
+		private String url, contentType, data;
+		private boolean resultReady = false;
+		private StringBuilder result = new StringBuilder();
+		private HttpURLConnection urlConnection;
+		private OutputStreamWriter out;
+		private BufferedReader in;
+
+		public HTTPRequestThread(String url, String contentType, String data) {
+			setName("HTTPRequestThread");
+			this.url = url;
+			this.contentType = contentType;
+			this.data = data;
 		}
 
-		public void set(boolean value) {
-			this.value = value;
+		@Override
+		public void run() {
+			try {
+
+				urlConnection = (HttpURLConnection) (new URL(url)
+						.openConnection());
+				urlConnection.setDoOutput(true);
+				urlConnection.setRequestMethod("POST");
+				urlConnection.setRequestProperty("content-type", contentType);
+				urlConnection.setRequestProperty("accept", "text/plain");
+				urlConnection.connect();
+
+				out = new OutputStreamWriter(urlConnection.getOutputStream());
+
+				out.write(data);
+				out.flush();
+				out.close();
+
+				in = new BufferedReader(new InputStreamReader(
+						urlConnection.getInputStream(), "UTF-8"));
+				String tmp;
+				while ((tmp = in.readLine()) != null)
+					result.append(tmp);
+
+				in.close();
+				urlConnection.disconnect();
+
+				resultReady = true;
+			} catch (IOException e) {
+				Global.getInstance().getLogger().warning(e.toString());
+				e.printStackTrace();
+			}
 		}
 
-		public boolean get() {
-			return value;
+		public void cancel() {
+			try {
+				if (urlConnection != null)
+					urlConnection.disconnect();
+				if (in != null)
+					in.close();
+				if (out != null)
+					out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		public boolean isResultReady() {
+			return resultReady;
+		}
+
+		public String getResponse() {
+			return result.toString();
 		}
 	}
 }
