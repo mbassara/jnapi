@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -120,6 +121,14 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 							table,
 							"Downloaded subtitles are in unsupported format and therefore they cannot be saved.",
 							"Unsupported format", JOptionPane.ERROR_MESSAGE);
+		} catch (TimeoutException e) {
+			Global.getInstance().getLogger().warning(e.toString());
+			e.printStackTrace();
+			JOptionPane
+					.showMessageDialog(
+							table,
+							"Server is not responding. Check you internet connection and try again.",
+							"Timeout", JOptionPane.WARNING_MESSAGE);
 		}
 
 	}

@@ -1,6 +1,7 @@
 package pl.mbassara.jnapi.services;
 
 import java.io.File;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JOptionPane;
 
@@ -24,13 +25,14 @@ public abstract class SubtitlesResult {
 
 	public abstract String getProviderName();
 
-	public abstract String getSubtitlesAsString();
+	public abstract String getSubtitlesAsString() throws TimeoutException;
 
 	public abstract Object getRawResult();
 
 	protected abstract File getMovieFile();
 
-	public Subtitles getSubtitles() throws UnsupportedSubtitlesFormatException {
+	public Subtitles getSubtitles() throws UnsupportedSubtitlesFormatException,
+			TimeoutException {
 		if (!isFound())
 			return null;
 
@@ -98,7 +100,7 @@ public abstract class SubtitlesResult {
 	}
 
 	public boolean saveSubtitles(File destination, Format format, String charset)
-			throws UnsupportedSubtitlesFormatException {
+			throws UnsupportedSubtitlesFormatException, TimeoutException {
 		if (!isFound())
 			return false;
 

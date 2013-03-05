@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -170,7 +171,7 @@ public class NapiprojektMovieInfoPanel extends JPanel {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException,
-			URISyntaxException {
+			URISyntaxException, TimeoutException {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {

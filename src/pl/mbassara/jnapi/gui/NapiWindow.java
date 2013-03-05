@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -25,7 +26,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.EmptyBorder;
 
 import pl.mbassara.jnapi.Global;
@@ -36,9 +36,6 @@ import pl.mbassara.jnapi.services.Lang;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
 import pl.mbassara.jnapi.services.opensubtitles.OpenSubtitles;
-
-import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
-import com.sun.jna.Platform;
 
 public class NapiWindow extends JFrame {
 
@@ -126,24 +123,66 @@ public class NapiWindow extends JFrame {
 					public void run() {
 						try {
 							boolean subtitlesFound = false;
+							boolean napiTimeout = false;
+							boolean opensubTimeout = false;
 							ISubtitlesProvider subtitlesProvider;
 							if (napiprojektCheckBox.isSelected()) {
 								subtitlesProvider = new Napiprojekt();
-								for (SubtitlesResult result : subtitlesProvider
-										.downloadSubtitles(selectedFile, lang)) {
-									resultsTable.addResult(result);
-									subtitlesFound = true;
+								try {
+									for (SubtitlesResult result : subtitlesProvider
+											.downloadSubtitles(selectedFile,
+													lang)) {
+										resultsTable.addResult(result);
+										subtitlesFound = true;
+									}
+								} catch (TimeoutException e) {
+									Global.getInstance().getLogger()
+											.warning(e.toString());
+									e.printStackTrace();
+									napiTimeout = true;
 								}
 							}
 							if (opensubtitlesCheckBox.isSelected()) {
 								subtitlesProvider = new OpenSubtitles();
-								for (SubtitlesResult result : subtitlesProvider
-										.downloadSubtitles(selectedFile, lang)) {
-									resultsTable.addResult(result);
-									subtitlesFound = true;
+								try {
+									for (SubtitlesResult result : subtitlesProvider
+											.downloadSubtitles(selectedFile,
+													lang)) {
+										resultsTable.addResult(result);
+										subtitlesFound = true;
+									}
+								} catch (TimeoutException e) {
+									Global.getInstance().getLogger()
+											.warning(e.toString());
+									e.printStackTrace();
+									opensubTimeout = true;
 								}
 							}
 
+							if (napiTimeout || opensubTimeout) {
+								String serviceName = "", plural = "";
+								if (napiTimeout && opensubTimeout) {
+									serviceName = "both Napiprojekt and Opensubtitles";
+									plural = "s";
+								} else if (napiTimeout)
+									serviceName = "Napiprojekt";
+								else if (opensubTimeout)
+									serviceName = "Opensubtitles";
+
+								JOptionPane
+										.showMessageDialog(
+												thisReference,
+												"Timeout occurred on "
+														+ serviceName
+														+ " server"
+														+ plural
+														+ ". It means that server"
+														+ plural
+														+ " could be temporarily unavailable.",
+												"Timeout",
+												JOptionPane.WARNING_MESSAGE);
+								setAllEnabled(true);
+							}
 							if (subtitlesFound) {
 								filePathTextField.setText(selectedFile
 										.getName());
@@ -151,15 +190,15 @@ public class NapiWindow extends JFrame {
 								Global.getInstance().setSelectedMovieFilePath(
 										selectedFile.getCanonicalPath());
 								setAllEnabled(true);
-							} else {
+							} else if (!napiTimeout && !opensubTimeout) {
 								JOptionPane
 										.showMessageDialog(
 												thisReference,
 												"Can't find subtitles for this file in neither of selected databases.",
 												"No results",
 												JOptionPane.WARNING_MESSAGE);
+
 								setAllEnabled(true);
-								setOptionsEnabled(false);
 							}
 
 						} catch (FileNotFoundException e) {
@@ -173,7 +212,6 @@ public class NapiWindow extends JFrame {
 											"File not found",
 											JOptionPane.ERROR_MESSAGE);
 							setAllEnabled(true);
-							setOptionsEnabled(false);
 						} catch (IOException e) {
 							Global.getInstance().getLogger()
 									.warning(e.toString());
@@ -181,11 +219,12 @@ public class NapiWindow extends JFrame {
 							setAllEnabled(true);
 							setOptionsEnabled(false);
 						} finally {
-							thisReference.setCursor(Cursor
-									.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+							thisReference
+									.setCursor(Cursor
+											.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 						}
 					}
-				}).start();
+				}, "Subtitles searching Thread - NapiWindow").start();
 			}
 		});
 
@@ -307,20 +346,7 @@ public class NapiWindow extends JFrame {
 
 	private static void setLookAndFeel() {
 		try {
-			if (Platform.isWindows()) {
-				UIManager.setLookAndFeel(UIManager
-						.getSystemLookAndFeelClassName());
-			} else if (Platform.isLinux()) {
-				boolean gtkInstalled = false;
-				for (LookAndFeelInfo info : UIManager
-						.getInstalledLookAndFeels())
-					if (info.getClassName().equals(
-							GTKLookAndFeel.class.getName()))
-						gtkInstalled = true;
-
-				if (gtkInstalled)
-					UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
-			}
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

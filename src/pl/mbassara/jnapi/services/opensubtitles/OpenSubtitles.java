@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.JFileChooser;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,7 +46,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	private static SAXParser parser;
 
 	public static ResponseStruct callMethod(String methodName,
-			Value[] parameters) {
+			Value[] parameters) throws TimeoutException {
 		String request = "<?xml version=\"1.0\" encoding=\"utf-8\"?><methodCall><methodName>"
 				+ methodName + "</methodName>";
 
@@ -79,7 +80,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 		return handler.getResult();
 	}
 
-	public static String logIn() {
+	public static String logIn() throws TimeoutException {
 		ResponseStruct response = logIn("", "", "en", "JNapi v0.1");
 		if (isResponseOK(response))
 			return response.getFieldsForName("token").get(0).getValue();
@@ -88,20 +89,20 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	}
 
 	public static ResponseStruct logIn(String username, String password,
-			String language, String useragent) {
+			String language, String useragent) throws TimeoutException {
 
 		return callMethod("LogIn", new Value[] { new SingleValue(username),
 				new SingleValue(password), new SingleValue(language),
 				new SingleValue(useragent) });
 	}
 
-	public static boolean logOut(String token) {
+	public static boolean logOut(String token) throws TimeoutException {
 		return isResponseOK(callMethod("LogOut", new Value[] { new SingleValue(
 				token) }));
 	}
 
 	public static ResponseStruct searchSubtitles(String token, Lang lang,
-			String movieHash, long fileSize) {
+			String movieHash, long fileSize) throws TimeoutException {
 		String l = lang == Lang.PL ? "pol" : "eng";
 		return callMethod("SearchSubtitles", new Value[] {
 				new SingleValue(token),
@@ -113,7 +114,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	}
 
 	public static ResponseStruct searchSubtitles(String token, File movieFile,
-			Lang lang) {
+			Lang lang) throws TimeoutException {
 		try {
 			String movieHash = OpenSubtitlesHasher.computeHash(movieFile);
 			long fileSize = movieFile.length();
@@ -127,7 +128,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	}
 
 	public static ResponseStruct downloadSubtitles(String token,
-			String idSubtitleFile) {
+			String idSubtitleFile) throws TimeoutException {
 		return callMethod("DownloadSubtitles",
 				new Value[] {
 						new SingleValue(token),
@@ -136,7 +137,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 	}
 
 	public static ResponseStruct downloadSubtitles(String token,
-			File movieFile, Lang lang) {
+			File movieFile, Lang lang) throws TimeoutException {
 		ResponseStruct response = searchSubtitles(token, movieFile, lang);
 		if (!isResponseOK(response)
 				|| response.getFieldsForName("IDSubtitleFile").size() == 0)
@@ -163,7 +164,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 
 	@Override
 	public ArrayList<SubtitlesResult> downloadSubtitles(final File movieFile,
-			Lang lang) throws FileNotFoundException {
+			Lang lang) throws FileNotFoundException, TimeoutException {
 		String token = logIn();
 		ResponseStruct response = OpenSubtitles.searchSubtitles(token,
 				movieFile, lang);
@@ -187,7 +188,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 				}
 
 				@Override
-				public String getSubtitlesAsString() {
+				public String getSubtitlesAsString() throws TimeoutException {
 					if (subtitlesString != null)
 						return subtitlesString;
 
@@ -242,7 +243,8 @@ public class OpenSubtitles implements ISubtitlesProvider {
 		return list;
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException,
+			TimeoutException {
 
 		// System.out.println(logOut("5ev5qrbi743aug37oskpphsbi3"));
 

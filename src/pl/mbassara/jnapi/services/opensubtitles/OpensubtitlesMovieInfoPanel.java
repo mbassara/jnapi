@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -219,7 +220,7 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 	}
 
 	public static void main(String[] args) throws FileNotFoundException,
-			URISyntaxException {
+			URISyntaxException, TimeoutException {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {

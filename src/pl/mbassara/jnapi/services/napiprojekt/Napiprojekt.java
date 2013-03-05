@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -54,9 +55,10 @@ public class Napiprojekt implements ISubtitlesProvider {
 	 *            Available modes: SUBS, COVER, SUBS_COVER
 	 * @return NapiResult object representing server's response for this request
 	 * @throws FileNotFoundException
+	 * @throws TimeoutException
 	 */
 	public static NapiResult request(File file, Mode mode, Lang lang)
-			throws FileNotFoundException {
+			throws FileNotFoundException, TimeoutException {
 		String body = getBody(FileHelper.getHash(file), mode, lang);
 		String xmlResponse = HTTPHelper.sendNapiprojektRequest(napiUrl, body);
 
@@ -86,7 +88,7 @@ public class Napiprojekt implements ISubtitlesProvider {
 
 	@Override
 	public ArrayList<SubtitlesResult> downloadSubtitles(final File movieFile,
-			Lang lang) throws FileNotFoundException {
+			Lang lang) throws FileNotFoundException, TimeoutException {
 		final NapiResult result = Napiprojekt.request(movieFile,
 				Mode.SUBS_COVER, lang);
 
