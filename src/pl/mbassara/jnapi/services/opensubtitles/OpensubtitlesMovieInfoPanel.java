@@ -181,7 +181,7 @@ public class OpensubtitlesMovieInfoPanel extends JPanel {
 		cdLabel.setText("<html>" + subActualCD + "/" + subSumCD + "</html>");
 		if (movieByteSize != null && movieByteSize.length() > 0)
 			movieSizeLabel.setText("<html>"
-					+ (Integer.parseInt(movieByteSize) / 1024 / 1024) + " MB"
+					+ (Long.parseLong(movieByteSize) / 1024 / 1024) + " MB"
 					+ "</html>");
 		subAddDateLabel.setText("<html>" + subAddDate + "</html>");
 		subDownloadsCntLabel.setText("<html>" + subDownloadsCnt + "</html>");
