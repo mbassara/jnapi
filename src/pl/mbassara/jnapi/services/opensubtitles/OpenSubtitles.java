@@ -61,11 +61,10 @@ public class OpenSubtitles implements ISubtitlesProvider {
 
 		request += "</methodCall>";
 
-		String response = HTTPHelper.sendOpenSubtitlesRequest(URL, request);
+		byte[] response = HTTPHelper.sendOpenSubtitlesRequest(URL, request);
 		OpenSubtitlesXMLHandler handler = new OpenSubtitlesXMLHandler();
 		try {
-			parser.parse(new ByteArrayInputStream(response.getBytes("UTF-8")),
-					handler);
+			parser.parse(new ByteArrayInputStream(response), handler);
 		} catch (UnsupportedEncodingException e) {
 			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();

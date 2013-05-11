@@ -60,15 +60,13 @@ public class Napiprojekt implements ISubtitlesProvider {
 	public static NapiResult request(File file, Mode mode, Lang lang)
 			throws FileNotFoundException, TimeoutException {
 		String body = getBody(FileHelper.getHash(file), mode, lang);
-		String xmlResponse = HTTPHelper.sendNapiprojektRequest(napiUrl, body);
+		byte[] response = HTTPHelper.sendNapiprojektRequest(napiUrl, body);
 
 		NapiXMLHandler handler = new NapiXMLHandler();
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser parser = factory.newSAXParser();
-			parser.parse(
-					new ByteArrayInputStream(xmlResponse.getBytes("UTF-8")),
-					handler);
+			parser.parse(new ByteArrayInputStream(response), handler);
 		} catch (ParserConfigurationException e) {
 			Global.getInstance().getLogger().warning(e.toString());
 			e.printStackTrace();

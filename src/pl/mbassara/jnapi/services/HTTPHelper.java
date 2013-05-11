@@ -1,8 +1,7 @@
 package pl.mbassara.jnapi.services;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -17,12 +16,12 @@ import pl.mbassara.jnapi.Global;
  */
 public abstract class HTTPHelper {
 
-	public static String sendNapiprojektRequest(String url, String data)
+	public static byte[] sendNapiprojektRequest(String url, String data)
 			throws TimeoutException {
 		return sendRequest(url, "application/x-www-form-urlencoded", data, 5000);
 	}
 
-	public static String sendOpenSubtitlesRequest(String url, String data)
+	public static byte[] sendOpenSubtitlesRequest(String url, String data)
 			throws TimeoutException {
 		return sendRequest(url, "text/xml", data, 5000);
 	}
@@ -35,7 +34,7 @@ public abstract class HTTPHelper {
 	 *            data which will be send to server as request body
 	 * @return XML containing server's response
 	 */
-	public static String sendRequest(String url, String contentType,
+	public static byte[] sendRequest(String url, String contentType,
 			String data, long timeoutMillis) throws TimeoutException {
 
 		long begTime = System.currentTimeMillis();
@@ -64,10 +63,8 @@ public abstract class HTTPHelper {
 
 		private String url, contentType, data;
 		private boolean resultReady = false;
-		private StringBuilder result = new StringBuilder();
+		private ByteArrayOutputStream arrayStream;
 		private HttpURLConnection urlConnection;
-		private OutputStreamWriter out;
-		private BufferedReader in;
 
 		public HTTPRequestThread(String url, String contentType, String data) {
 			setName("HTTPRequestThread");
@@ -88,19 +85,19 @@ public abstract class HTTPHelper {
 				urlConnection.setRequestProperty("accept", "text/plain");
 				urlConnection.connect();
 
-				out = new OutputStreamWriter(urlConnection.getOutputStream());
+				OutputStreamWriter out = new OutputStreamWriter(
+						urlConnection.getOutputStream());
 
 				out.write(data);
 				out.flush();
 				out.close();
 
-				in = new BufferedReader(new InputStreamReader(
-						urlConnection.getInputStream(), "UTF-8"));
-				String tmp;
-				while ((tmp = in.readLine()) != null)
-					result.append(tmp);
+				arrayStream = new ByteArrayOutputStream();
+				byte[] buff = new byte[1024];
+				int len;
+				while ((len = urlConnection.getInputStream().read(buff)) > 0)
+					arrayStream.write(buff, 0, len);
 
-				in.close();
 				urlConnection.disconnect();
 
 				resultReady = true;
@@ -111,15 +108,14 @@ public abstract class HTTPHelper {
 		}
 
 		public void cancel() {
-			try {
-				if (urlConnection != null)
+			if (urlConnection != null) {
+				try {
+					urlConnection.getOutputStream().close();
+					urlConnection.getInputStream().close();
 					urlConnection.disconnect();
-				if (in != null)
-					in.close();
-				if (out != null)
-					out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -127,8 +123,8 @@ public abstract class HTTPHelper {
 			return resultReady;
 		}
 
-		public String getResponse() {
-			return result.toString();
+		public byte[] getResponse() {
+			return resultReady ? arrayStream.toByteArray() : new byte[0];
 		}
 	}
 }

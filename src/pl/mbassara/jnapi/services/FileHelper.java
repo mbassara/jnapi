@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPInputStream;
@@ -18,6 +17,8 @@ import javax.xml.bind.DatatypeConverter;
 
 import pl.mbassara.jnapi.Global;
 import sun.misc.BASE64Decoder;
+
+import com.ibm.icu.text.CharsetDetector;
 
 /**
  * Functions for file operations, used in this app. Especially for computing
@@ -122,11 +123,12 @@ public abstract class FileHelper {
 	 * @return String representation of Base64 decoded data.
 	 */
 	public static String decodeBase64TextData(String base64Data) {
-		byte[] data = base64ToByteArray(base64Data);
 		try {
-			return new String(data, "windows-1250");
-		} catch (UnsupportedEncodingException e) {
-			Global.getInstance().getLogger().warning(e.toString());
+			byte[] data = base64ToByteArray(base64Data);
+			CharsetDetector detector = new CharsetDetector();
+			detector.setText(data);
+			return detector.detect().getString();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
