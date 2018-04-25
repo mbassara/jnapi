@@ -5,14 +5,14 @@ Cross-platform application for downloading movie subtitles. For now it uses [nap
 
 ### JAR  
 To use JNapi, you have to install [MediaInfo library](http://mediainfo.sourceforge.net/en/Download) on your system.  
-[JNapi v0.2 - JAR file](http://student.agh.edu.pl/~bassara/jnapi/jnapi.jar)  
+[JNapi v0.2 - JAR file](https://drive.google.com/open?id=14rpDFPAAJs8f2rOdVovDepzoy5Qrf432)  
 
 
 ### Windows
 
 On windows, you can download installer with `MediaInfo.dll` included:  
-[JNapi v0.2 - x86](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x86.exe)  
-[JNapi v0.2 - x64](http://student.agh.edu.pl/~bassara/jnapi/jnapi_v0.2_x64.exe)
+[JNapi v0.2 - x86](https://drive.google.com/open?id=16YVSAi3jRmhnsS2RcDB821tBqdkeWdgJ)  
+[JNapi v0.2 - x64](https://drive.google.com/open?id=1lCCa4Eyp917wxWH75w6Ae8xR_PM6h-mN)
 
 ### Ubuntu/Debian
 ```
