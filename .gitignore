@@ -1,6 +1,5 @@
 bin
-logs
-MediaInfo.dll
-jnapi.jar
-config.dat
-logs.log
+tmp
+target
+.idea
+*.iml
