@@ -6,6 +6,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import org.apache.commons.lang3.StringUtils;
 import pl.mbassara.jnapi.services.SubtitlesResult;
 
 public class ResultsTableModel implements TableModel {
@@ -44,7 +45,7 @@ public class ResultsTableModel implements TableModel {
 		String value = (columnIndex == 0 ? element.getMovieReleaseName()
 				: element.getProviderName());
 
-		return " " + value.trim();
+		return StringUtils.defaultIfEmpty(value, "").trim();
 	}
 
 	@Override
