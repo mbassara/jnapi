@@ -8,6 +8,7 @@ import pl.mbassara.jnapi.services.napiprojekt.NapiprojektMovieInfoPanel;
 import pl.mbassara.jnapi.services.opensubtitles.OpensubtitlesMovieInfoPanel;
 import pl.mbassara.jnapi.services.opensubtitles.ResponseStruct;
 import pl.mbassara.jnapi.subtitles.Subtitles.Format;
+import pl.mbassara.jnapi.subtitles.SubtitlesConverter;
 import pl.mbassara.jnapi.subtitles.parsers.UnsupportedSubtitlesFormatException;
 
 import javax.swing.*;
@@ -112,7 +113,7 @@ public class ResultsTableMouseAdapter extends MouseAdapter {
 				.getResultAt(selectedRowIndex[0]);
 
 		try {
-			boolean isSaved = subtitlesResult.saveSubtitles(destinationFile,
+			boolean isSaved = SubtitlesConverter.saveSubtitles(subtitlesResult, destinationFile,
 					Global.getInstance().getFormat(), Global.getInstance()
 							.getSubtitlesCharset().toString());
 

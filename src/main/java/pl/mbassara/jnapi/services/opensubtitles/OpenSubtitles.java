@@ -1,34 +1,22 @@
 package pl.mbassara.jnapi.services.opensubtitles;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
-
-import javax.swing.JFileChooser;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.xml.sax.SAXException;
-
 import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.gui.MediaFileFilter;
 import pl.mbassara.jnapi.gui.SubtitlesCharset;
-import pl.mbassara.jnapi.services.FileHelper;
-import pl.mbassara.jnapi.services.HTTPHelper;
-import pl.mbassara.jnapi.services.ISubtitlesProvider;
-import pl.mbassara.jnapi.services.Lang;
-import pl.mbassara.jnapi.services.SubtitlesResult;
+import pl.mbassara.jnapi.services.*;
 import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
-import pl.mbassara.jnapi.services.opensubtitles.parameters.ArrayValue;
+import pl.mbassara.jnapi.services.opensubtitles.parameters.*;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.Member;
-import pl.mbassara.jnapi.services.opensubtitles.parameters.SingleValue;
-import pl.mbassara.jnapi.services.opensubtitles.parameters.StructValue;
 import pl.mbassara.jnapi.services.opensubtitles.parameters.Value;
+
+import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 public class OpenSubtitles implements ISubtitlesProvider {
 
@@ -227,7 +215,7 @@ public class OpenSubtitles implements ISubtitlesProvider {
 				}
 
 				@Override
-				protected File getMovieFile() {
+				public File getMovieFile() {
 					return movieFile;
 				}
 

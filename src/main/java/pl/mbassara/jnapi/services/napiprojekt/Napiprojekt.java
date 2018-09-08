@@ -1,25 +1,15 @@
 package pl.mbassara.jnapi.services.napiprojekt;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
+import org.xml.sax.SAXException;
+import pl.mbassara.jnapi.Global;
+import pl.mbassara.jnapi.services.*;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.SAXException;
-
-import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.services.FileHelper;
-import pl.mbassara.jnapi.services.HTTPHelper;
-import pl.mbassara.jnapi.services.ISubtitlesProvider;
-import pl.mbassara.jnapi.services.Lang;
-import pl.mbassara.jnapi.services.SubtitlesResult;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This class allows requesting napiprojekt data base for subtitles to given
@@ -121,7 +111,7 @@ public class Napiprojekt implements ISubtitlesProvider {
 				}
 
 				@Override
-				protected File getMovieFile() {
+				public File getMovieFile() {
 					return movieFile;
 				}
 
