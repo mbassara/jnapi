@@ -1,19 +1,14 @@
 package pl.mbassara.jnapi.services;
 
-import java.io.File;
-import java.util.concurrent.TimeoutException;
-
-import javax.swing.JOptionPane;
-
 import pl.mbassara.jnapi.Global;
 import pl.mbassara.jnapi.mediainfo.MediaInfo;
-import pl.mbassara.jnapi.model.Subtitles;
-import pl.mbassara.jnapi.model.Subtitles.Format;
-import pl.mbassara.jnapi.model.parsers.MPL2Parser;
-import pl.mbassara.jnapi.model.parsers.MicroDVDParser;
-import pl.mbassara.jnapi.model.parsers.SubRipParser;
-import pl.mbassara.jnapi.model.parsers.TMPlayerParser;
-import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
+import pl.mbassara.jnapi.subtitles.Subtitles;
+import pl.mbassara.jnapi.subtitles.Subtitles.Format;
+import pl.mbassara.jnapi.subtitles.parsers.*;
+
+import javax.swing.*;
+import java.io.File;
+import java.util.concurrent.TimeoutException;
 
 public abstract class SubtitlesResult {
 

@@ -1,41 +1,23 @@
 package pl.mbassara.jnapi.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Label;
+import pl.mbassara.jnapi.Global;
+import pl.mbassara.jnapi.mediainfo.MediaInfo;
+import pl.mbassara.jnapi.services.ISubtitlesProvider;
+import pl.mbassara.jnapi.services.Lang;
+import pl.mbassara.jnapi.services.SubtitlesResult;
+import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
+import pl.mbassara.jnapi.services.opensubtitles.OpenSubtitles;
+import pl.mbassara.jnapi.subtitles.Subtitles.Format;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-
-import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.mediainfo.MediaInfo;
-import pl.mbassara.jnapi.model.Subtitles.Format;
-import pl.mbassara.jnapi.services.ISubtitlesProvider;
-import pl.mbassara.jnapi.services.Lang;
-import pl.mbassara.jnapi.services.SubtitlesResult;
-import pl.mbassara.jnapi.services.napiprojekt.Napiprojekt;
-import pl.mbassara.jnapi.services.opensubtitles.OpenSubtitles;
 
 public class NapiWindow extends JFrame {
 

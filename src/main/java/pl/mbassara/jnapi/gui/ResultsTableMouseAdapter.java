@@ -1,33 +1,24 @@
 package pl.mbassara.jnapi.gui;
 
-import java.awt.Font;
+import com.sun.jna.Platform;
+import pl.mbassara.jnapi.Global;
+import pl.mbassara.jnapi.services.SubtitlesResult;
+import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
+import pl.mbassara.jnapi.services.napiprojekt.NapiprojektMovieInfoPanel;
+import pl.mbassara.jnapi.services.opensubtitles.OpensubtitlesMovieInfoPanel;
+import pl.mbassara.jnapi.services.opensubtitles.ResponseStruct;
+import pl.mbassara.jnapi.subtitles.Subtitles.Format;
+import pl.mbassara.jnapi.subtitles.parsers.UnsupportedSubtitlesFormatException;
+
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.concurrent.TimeoutException;
-
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
-
-import pl.mbassara.jnapi.Global;
-import pl.mbassara.jnapi.model.Subtitles.Format;
-import pl.mbassara.jnapi.model.parsers.UnsupportedSubtitlesFormatException;
-import pl.mbassara.jnapi.services.SubtitlesResult;
-import pl.mbassara.jnapi.services.napiprojekt.NapiResult;
-import pl.mbassara.jnapi.services.napiprojekt.NapiprojektMovieInfoPanel;
-import pl.mbassara.jnapi.services.opensubtitles.OpensubtitlesMovieInfoPanel;
-import pl.mbassara.jnapi.services.opensubtitles.ResponseStruct;
-
-import com.sun.jna.Platform;
 
 public class ResultsTableMouseAdapter extends MouseAdapter {
 
