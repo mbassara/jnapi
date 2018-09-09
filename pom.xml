@@ -7,7 +7,7 @@
     <groupId>pl.mbassara</groupId>
     <artifactId>jnapi</artifactId>
     <name>JNapi</name>
-    <version>0.3</version>
+    <version>0.4</version>
     <packaging>pom</packaging>
 
     <modules>
