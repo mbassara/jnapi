@@ -1,5 +1,6 @@
 package pl.mbassara.jnapi.web.file;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pl.mbassara.jnapi.web.exception.JNapiException;
 
@@ -16,12 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class FileFinder {
 
-    private static final Path BASE_PATH = Paths.get("/home/maciek/Wideo");
+    private final Path basePath;
+
+    public FileFinder(@Value("${jnapi.base.path}") String basePath) {
+        this.basePath = Paths.get(basePath);
+    }
 
     public Optional<Path> find(String fileName) {
         List<Path> paths;
         try {
-            paths = Files.find(BASE_PATH, 10, fileMatcher(fileName)).collect(Collectors.toList());
+            paths = Files.find(basePath, 10, fileMatcher(fileName)).collect(Collectors.toList());
         } catch (IOException e) {
             throw new JNapiException(e, "Cannot find file " + fileName);
         }
