@@ -1,7 +1,6 @@
 package pl.mbassara.jnapi.core.services;
 
 import java.io.File;
-import java.util.concurrent.TimeoutException;
 
 public interface SubtitlesResult {
 
@@ -13,7 +12,7 @@ public interface SubtitlesResult {
 
     String getProviderName();
 
-    String getSubtitlesAsString() throws TimeoutException;
+    String getSubtitlesAsString();
 
     Object getRawResult();
 

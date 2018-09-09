@@ -173,14 +173,19 @@ public class OpenSubtitles implements ISubtitlesProvider {
                 }
 
                 @Override
-                public String getSubtitlesAsString() throws TimeoutException {
+                public String getSubtitlesAsString() {
                     if (subtitlesString != null)
                         return subtitlesString;
 
-                    String token = logIn();
-                    ResponseStruct responseStruct = downloadSubtitles(token,
-                            idSubtitleFile);
-                    logOut(token);
+                    ResponseStruct responseStruct = null;
+                    try {
+                        String token = logIn();
+                        responseStruct = downloadSubtitles(token,
+                                idSubtitleFile);
+                        logOut(token);
+                    } catch (TimeoutException e) {
+                        new RuntimeException(e);
+                    }
 
                     if (!isResponseOK(responseStruct))
                         return null;

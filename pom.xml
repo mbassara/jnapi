@@ -14,6 +14,7 @@
         <module>jnapi-core</module>
         <module>jnapi-gui</module>
         <module>jnapi-cli</module>
+        <module>jnapi-web</module>
     </modules>
 
     <dependencyManagement>
